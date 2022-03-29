@@ -9,8 +9,8 @@ import (
 
 var DB *gorm.DB
 
-func Connect() {
-	dsn := "host=localhost user=root password=root dbname=library port=3306" //sslmode=disable TimeZone=Asia/Shanghai
+func Connect(dsn string) *gorm.DB {
+	//dsn := "host=localhost user=root password=root dbname=library port=3306" //sslmode=disable TimeZone=Asia/Shanghai
 
 	connection, err := gorm.Open(mysql.Open(dsn), &gorm.Config{
 		PrepareStmt: true,
@@ -28,4 +28,6 @@ func Connect() {
 	}
 
 	DB = connection
+
+	return DB
 }

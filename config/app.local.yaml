@@ -1,10 +1,10 @@
 Env: "local"
 
 DatabaseSettings:
-  DatabaseURI: ""
-  DatabaseName: ""
-  Username: ""
-  Password: ""
+  DatabaseURI: "root:root@tcp(127.0.0.1:3306)/app"
+  DatabaseName: "LOCALapp"
+  Username: "LOCALroot"
+  Password: "LOCALroot"
 
 JwtSettings:
   SecretKey: ""
