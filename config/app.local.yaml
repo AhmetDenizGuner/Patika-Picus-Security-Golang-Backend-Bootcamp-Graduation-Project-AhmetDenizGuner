@@ -1,8 +1,8 @@
 Env: "local"
 
 DatabaseSettings:
-  DatabaseURI: "root:root@tcp(127.0.0.1:3306)/app"
-  DatabaseName: "LOCALapp"
+  DatabaseURI: "root:root@tcp(127.0.0.1:3306)/picus_shop"
+  DatabaseName: "LOCALpicus_shop"
   Username: "LOCALroot"
   Password: "LOCALroot"
 
@@ -10,12 +10,6 @@ JwtSettings:
   SecretKey: ""
 
 #Env: "prod"
-
-  #DatabaseSettings:
-  #DatabaseURI: "root:Password123!@tcp(127.0.0.1:3306)/location?parseTime=True&loc=Local"
-  #DatabaseName: "PRODlocation"
-  #Username: "PRODroot"
-  #Password: "PRODPassword123!"
 
   #NewRelicSettings:
   #LicenseKey: "YOUR_LICENSE_KEY"
