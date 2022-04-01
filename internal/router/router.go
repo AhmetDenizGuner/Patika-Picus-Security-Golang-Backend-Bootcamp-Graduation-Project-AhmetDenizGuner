@@ -21,4 +21,15 @@ func RegisterHandlers(r *gin.Engine) {
 	db := database.Connect(AppConfig.DatabaseURI)
 	fmt.Println(db)
 
+	productGroup := r.Group("/product")
+	productGroup.GET("/list")
+
+	categoryGroup := r.Group("/category")
+	categoryGroup.GET("/list")
+
+	authGroup := r.Group("/auth")
+	authGroup.POST("/login")
+	authGroup.POST("/signup")
+	authGroup.POST("/logout")
+
 }
