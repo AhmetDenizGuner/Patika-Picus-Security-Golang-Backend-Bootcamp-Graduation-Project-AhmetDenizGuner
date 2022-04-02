@@ -4,6 +4,7 @@ import (
 	"github.com/AhmetDenizGuner/Patika-Picus-Security-Golang-Backend-Bootcamp-Graduation-Project-AhmetDenizGuner/internal/config"
 	"github.com/AhmetDenizGuner/Patika-Picus-Security-Golang-Backend-Bootcamp-Graduation-Project-AhmetDenizGuner/internal/database"
 	"github.com/AhmetDenizGuner/Patika-Picus-Security-Golang-Backend-Bootcamp-Graduation-Project-AhmetDenizGuner/internal/domain/user"
+	redisHelper "github.com/AhmetDenizGuner/Patika-Picus-Security-Golang-Backend-Bootcamp-Graduation-Project-AhmetDenizGuner/pkg/redis"
 	"github.com/gin-gonic/gin"
 	"log"
 	"os"
@@ -18,7 +19,7 @@ func RegisterHandlers(r *gin.Engine) {
 		log.Fatalf("Failed to read config file. %v", err.Error())
 	}
 
-	//redisClient := redisHelper.NewRedisClient(AppConfig)
+	redisClient := redisHelper.NewRedisClient(AppConfig)
 
 	db := database.Connect(AppConfig.DatabaseURI)
 
@@ -30,11 +31,11 @@ func RegisterHandlers(r *gin.Engine) {
 
 	userRepository := user.NewUserRepository(db)
 	userService := user.NewUserService(*userRepository)
-	userController := user.NewUserController(userService, AppConfig)
+	userController := user.NewUserController(userService, AppConfig, redisClient)
 
 	authGroup := r.Group("/auth")
 	authGroup.POST("/login", userController.SignIn)
 	authGroup.POST("/signup", userController.SignUp)
-	authGroup.POST("/logout")
+	authGroup.POST("/logout", userController.SignOut)
 
 }
