@@ -1,7 +1,6 @@
 package api
 
 import (
-	"fmt"
 	"github.com/AhmetDenizGuner/Patika-Picus-Security-Golang-Backend-Bootcamp-Graduation-Project-AhmetDenizGuner/internal/config"
 	"github.com/AhmetDenizGuner/Patika-Picus-Security-Golang-Backend-Bootcamp-Graduation-Project-AhmetDenizGuner/internal/database"
 	"github.com/AhmetDenizGuner/Patika-Picus-Security-Golang-Backend-Bootcamp-Graduation-Project-AhmetDenizGuner/internal/domain/user"
@@ -19,8 +18,9 @@ func RegisterHandlers(r *gin.Engine) {
 		log.Fatalf("Failed to read config file. %v", err.Error())
 	}
 
+	//redisClient := redisHelper.NewRedisClient(AppConfig)
+
 	db := database.Connect(AppConfig.DatabaseURI)
-	fmt.Println(db)
 
 	productGroup := r.Group("/product")
 	productGroup.GET("/list")
@@ -30,7 +30,7 @@ func RegisterHandlers(r *gin.Engine) {
 
 	userRepository := user.NewUserRepository(db)
 	userService := user.NewUserService(*userRepository)
-	userController := user.NewUserController(userService)
+	userController := user.NewUserController(userService, AppConfig)
 
 	authGroup := r.Group("/auth")
 	authGroup.POST("/login", userController.SignIn)

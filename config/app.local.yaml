@@ -9,11 +9,12 @@ DatabaseSettings:
 JwtSettings:
   SecretKey: ""
 
+RedisSettings:
+  AddrURI: "127.0.0.1:6379"
+
+
 #Env: "prod"
 
   #NewRelicSettings:
   #LicenseKey: "YOUR_LICENSE_KEY"
   #AppName: "YOUR_PROD_APP_NAME"
-
-  #JwtSettings:
-  #SecretKey: "MY_PROD_SECRET_KEY"
