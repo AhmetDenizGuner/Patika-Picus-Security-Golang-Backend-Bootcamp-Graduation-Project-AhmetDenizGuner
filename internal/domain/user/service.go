@@ -1,6 +1,8 @@
 package user
 
 import (
+	"crypto/sha256"
+	"fmt"
 	"github.com/AhmetDenizGuner/Patika-Picus-Security-Golang-Backend-Bootcamp-Graduation-Project-AhmetDenizGuner/internal/api/types"
 	"github.com/pkg/errors"
 )
@@ -43,4 +45,26 @@ func (service *UserService) SignupService(userInfo types.SignupRequest) error {
 	}
 
 	return nil
+}
+
+//SignInService is used for login the system, it checks user credentials
+func (service *UserService) SignInService(signinInfo types.SigninRequest) (User, error) {
+
+	//Check user info is exist
+	user, err := service.repository.FindByEmail(signinInfo.Email)
+
+	if err != nil {
+		return User{}, err
+	}
+
+	//check password
+	data := []byte(signinInfo.Password)
+	hash := sha256.Sum256(data)
+	strHash := fmt.Sprintf("%x", hash)
+
+	if strHash != user.PasswordHash {
+		return User{}, errors.New("")
+	}
+
+	return user, nil
 }

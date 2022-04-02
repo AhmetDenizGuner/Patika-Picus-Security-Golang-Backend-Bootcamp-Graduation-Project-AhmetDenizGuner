@@ -31,7 +31,7 @@ func NewUser(name, email, password string) *User {
 }
 
 func (u *User) SetPasswordHash() {
-	data := []byte("hello")
+	data := []byte(u.Password)
 	hash := sha256.Sum256(data)
 	strHash := fmt.Sprintf("%x", hash)
 	u.PasswordHash = strHash
