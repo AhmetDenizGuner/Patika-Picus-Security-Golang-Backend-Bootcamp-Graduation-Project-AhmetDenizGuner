@@ -19,10 +19,26 @@ func NewUserController(service *UserService) *UserController {
 func (c *UserController) SignUp(g *gin.Context) {
 	var requestModel types.SignupRequest
 
+	//check request body is correct form
 	if err := g.ShouldBind(&requestModel); err != nil {
 		g.JSON(http.StatusBadRequest, gin.H{
 			"error_message": "Check your request body.",
 		})
 	}
+
+	//service call
+	err2 := c.userService.SignupService(requestModel)
+
+	if err2 != nil {
+		g.JSON(http.StatusBadRequest, gin.H{
+			"error_message": "Check your form of inputs. Error: " + err2.Error(),
+		})
+	}
+
+	g.JSON(http.StatusCreated, requestModel)
+
+}
+
+func (c *UserController) SignIn(g *gin.Context) {
 
 }

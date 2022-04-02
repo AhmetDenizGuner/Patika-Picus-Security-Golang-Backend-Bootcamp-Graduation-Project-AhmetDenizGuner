@@ -33,7 +33,7 @@ func RegisterHandlers(r *gin.Engine) {
 	userController := user.NewUserController(userService)
 
 	authGroup := r.Group("/auth")
-	authGroup.POST("/login")
+	authGroup.POST("/login", userController.SignIn)
 	authGroup.POST("/signup", userController.SignUp)
 	authGroup.POST("/logout")
 
