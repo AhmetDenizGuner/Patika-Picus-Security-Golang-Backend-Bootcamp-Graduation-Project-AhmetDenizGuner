@@ -1,9 +1,10 @@
-package router
+package api
 
 import (
 	"fmt"
 	"github.com/AhmetDenizGuner/Patika-Picus-Security-Golang-Backend-Bootcamp-Graduation-Project-AhmetDenizGuner/internal/config"
 	"github.com/AhmetDenizGuner/Patika-Picus-Security-Golang-Backend-Bootcamp-Graduation-Project-AhmetDenizGuner/internal/database"
+	"github.com/AhmetDenizGuner/Patika-Picus-Security-Golang-Backend-Bootcamp-Graduation-Project-AhmetDenizGuner/internal/domain/user"
 	"github.com/gin-gonic/gin"
 	"log"
 	"os"
@@ -27,9 +28,13 @@ func RegisterHandlers(r *gin.Engine) {
 	categoryGroup := r.Group("/category")
 	categoryGroup.GET("/list")
 
+	userRepository := user.NewUserRepository(db)
+	userService := user.NewUserService(*userRepository)
+	userController := user.NewUserController(userService)
+
 	authGroup := r.Group("/auth")
 	authGroup.POST("/login")
-	authGroup.POST("/signup")
+	authGroup.POST("/signup", userController.SignUp)
 	authGroup.POST("/logout")
 
 }
