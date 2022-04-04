@@ -1,9 +1,11 @@
 package api
 
 import (
+	"fmt"
 	"github.com/AhmetDenizGuner/Patika-Picus-Security-Golang-Backend-Bootcamp-Graduation-Project-AhmetDenizGuner/internal/config"
 	"github.com/AhmetDenizGuner/Patika-Picus-Security-Golang-Backend-Bootcamp-Graduation-Project-AhmetDenizGuner/internal/database"
 	"github.com/AhmetDenizGuner/Patika-Picus-Security-Golang-Backend-Bootcamp-Graduation-Project-AhmetDenizGuner/internal/domain/category"
+	"github.com/AhmetDenizGuner/Patika-Picus-Security-Golang-Backend-Bootcamp-Graduation-Project-AhmetDenizGuner/internal/domain/product"
 	"github.com/AhmetDenizGuner/Patika-Picus-Security-Golang-Backend-Bootcamp-Graduation-Project-AhmetDenizGuner/internal/domain/user"
 	"github.com/AhmetDenizGuner/Patika-Picus-Security-Golang-Backend-Bootcamp-Graduation-Project-AhmetDenizGuner/internal/middleware"
 	redisHelper "github.com/AhmetDenizGuner/Patika-Picus-Security-Golang-Backend-Bootcamp-Graduation-Project-AhmetDenizGuner/pkg/redis"
@@ -24,6 +26,13 @@ func RegisterHandlers(r *gin.Engine) {
 	redisClient := redisHelper.NewRedisClient(AppConfig)
 
 	db := database.Connect(AppConfig.DatabaseURI)
+
+	productRepository := product.NewProductRepository(db)
+	productService := product.NewProductService(*productRepository)
+	productController := product.NewProductController(productService)
+
+	//TODO
+	fmt.Println(productController)
 
 	productGroup := r.Group("/product")
 	productGroup.GET("/list")

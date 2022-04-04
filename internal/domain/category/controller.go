@@ -57,7 +57,7 @@ func (c *CategoryController) AddCategoryFromCSV(g *gin.Context) {
 		log.Fatal(err)
 	}
 
-	c.categoryService.AddBulkCategory()
+	c.categoryService.AddBulkCategory("saved/" + file.Filename)
 
 	g.JSON(http.StatusCreated, fmt.Sprintf("'%s' uploaded!", file.Filename))
 
