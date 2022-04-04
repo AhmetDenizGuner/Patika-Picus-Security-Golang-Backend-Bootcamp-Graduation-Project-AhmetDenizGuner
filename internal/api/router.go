@@ -3,7 +3,9 @@ package api
 import (
 	"github.com/AhmetDenizGuner/Patika-Picus-Security-Golang-Backend-Bootcamp-Graduation-Project-AhmetDenizGuner/internal/config"
 	"github.com/AhmetDenizGuner/Patika-Picus-Security-Golang-Backend-Bootcamp-Graduation-Project-AhmetDenizGuner/internal/database"
+	"github.com/AhmetDenizGuner/Patika-Picus-Security-Golang-Backend-Bootcamp-Graduation-Project-AhmetDenizGuner/internal/domain/category"
 	"github.com/AhmetDenizGuner/Patika-Picus-Security-Golang-Backend-Bootcamp-Graduation-Project-AhmetDenizGuner/internal/domain/user"
+	"github.com/AhmetDenizGuner/Patika-Picus-Security-Golang-Backend-Bootcamp-Graduation-Project-AhmetDenizGuner/internal/middleware"
 	redisHelper "github.com/AhmetDenizGuner/Patika-Picus-Security-Golang-Backend-Bootcamp-Graduation-Project-AhmetDenizGuner/pkg/redis"
 	"github.com/gin-gonic/gin"
 	"log"
@@ -26,8 +28,13 @@ func RegisterHandlers(r *gin.Engine) {
 	productGroup := r.Group("/product")
 	productGroup.GET("/list")
 
+	categoryRepository := category.NewCategoryRepository(db)
+	categoryService := category.NewCategoryService(*categoryRepository)
+	categoryController := category.NewCategoryController(categoryService)
+
 	categoryGroup := r.Group("/category")
-	categoryGroup.GET("/list")
+	categoryGroup.GET("/list", categoryController.CategoryList)
+	categoryGroup.GET("/add-all", middleware.AdminAuthMiddleware(AppConfig.JwtSettings.SecretKey), categoryController.AddCategoryFromCSV)
 
 	userRepository := user.NewUserRepository(db)
 	userService := user.NewUserService(*userRepository)

@@ -2,15 +2,16 @@ package jwt
 
 import (
 	"encoding/json"
+	"github.com/AhmetDenizGuner/Patika-Picus-Security-Golang-Backend-Bootcamp-Graduation-Project-AhmetDenizGuner/internal/domain/role"
 	"github.com/dgrijalva/jwt-go"
 )
 
 type DecodedToken struct {
-	Iat    int      `json:"iat"`
-	Roles  []string `json:"roles"`
-	UserId string   `json:"userId"`
-	Email  string   `json:"email"`
-	Iss    string   `json:"iss"`
+	Iat    int         `json:"iat"`
+	Roles  []role.Role `json:"roles"`
+	UserId string      `json:"userId"`
+	Email  string      `json:"email"`
+	Iss    string      `json:"iss"`
 }
 
 func GenerateToken(claims *jwt.Token, secret string) (token string) {
