@@ -3,6 +3,7 @@ package api
 import (
 	"github.com/AhmetDenizGuner/Patika-Picus-Security-Golang-Backend-Bootcamp-Graduation-Project-AhmetDenizGuner/internal/config"
 	"github.com/AhmetDenizGuner/Patika-Picus-Security-Golang-Backend-Bootcamp-Graduation-Project-AhmetDenizGuner/internal/database"
+	"github.com/AhmetDenizGuner/Patika-Picus-Security-Golang-Backend-Bootcamp-Graduation-Project-AhmetDenizGuner/internal/domain/cart"
 	"github.com/AhmetDenizGuner/Patika-Picus-Security-Golang-Backend-Bootcamp-Graduation-Project-AhmetDenizGuner/internal/domain/category"
 	"github.com/AhmetDenizGuner/Patika-Picus-Security-Golang-Backend-Bootcamp-Graduation-Project-AhmetDenizGuner/internal/domain/product"
 	"github.com/AhmetDenizGuner/Patika-Picus-Security-Golang-Backend-Bootcamp-Graduation-Project-AhmetDenizGuner/internal/domain/user"
@@ -34,6 +35,19 @@ func RegisterHandlers(r *gin.Engine) {
 	productService := product.NewProductService(*productRepository, *categoryService)
 	productController := product.NewProductController(productService)
 
+	userRepository := user.NewUserRepository(db)
+	userService := user.NewUserService(*userRepository)
+	userController := user.NewUserController(userService, AppConfig, redisClient)
+
+	cartRepository := cart.NewCartRepository(db)
+	cartService := cart.NewCartService(*cartRepository)
+	cartController := cart.NewCartController(cartService)
+
+	cartGroup := r.Group("/cart")
+	cartGroup.GET("/list", middleware.UserAuthMiddleware(AppConfig.JwtSettings.SecretKey), cartController.AddCartItem)
+	cartGroup.POST("/add-item")
+	cartGroup.PUT("/update-item")
+
 	productGroup := r.Group("/product")
 	productGroup.GET("/list", productController.ListProducts)
 	productGroup.POST("search", productController.SearchProducts)
@@ -44,10 +58,6 @@ func RegisterHandlers(r *gin.Engine) {
 	categoryGroup := r.Group("/category")
 	categoryGroup.GET("/list", categoryController.CategoryList)
 	categoryGroup.GET("/add-all", middleware.AdminAuthMiddleware(AppConfig.JwtSettings.SecretKey), categoryController.AddCategoryFromCSV)
-
-	userRepository := user.NewUserRepository(db)
-	userService := user.NewUserService(*userRepository)
-	userController := user.NewUserController(userService, AppConfig, redisClient)
 
 	authGroup := r.Group("/auth")
 	authGroup.POST("/login", userController.SignIn)
