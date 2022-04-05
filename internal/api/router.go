@@ -1,7 +1,6 @@
 package api
 
 import (
-	"fmt"
 	"github.com/AhmetDenizGuner/Patika-Picus-Security-Golang-Backend-Bootcamp-Graduation-Project-AhmetDenizGuner/internal/config"
 	"github.com/AhmetDenizGuner/Patika-Picus-Security-Golang-Backend-Bootcamp-Graduation-Project-AhmetDenizGuner/internal/database"
 	"github.com/AhmetDenizGuner/Patika-Picus-Security-Golang-Backend-Bootcamp-Graduation-Project-AhmetDenizGuner/internal/domain/category"
@@ -27,19 +26,20 @@ func RegisterHandlers(r *gin.Engine) {
 
 	db := database.Connect(AppConfig.DatabaseURI)
 
-	productRepository := product.NewProductRepository(db)
-	productService := product.NewProductService(*productRepository)
-	productController := product.NewProductController(productService)
-
-	//TODO
-	fmt.Println(productController)
-
-	productGroup := r.Group("/product")
-	productGroup.GET("/list")
-
 	categoryRepository := category.NewCategoryRepository(db)
 	categoryService := category.NewCategoryService(*categoryRepository)
 	categoryController := category.NewCategoryController(categoryService)
+
+	productRepository := product.NewProductRepository(db)
+	productService := product.NewProductService(*productRepository, *categoryService)
+	productController := product.NewProductController(productService)
+
+	productGroup := r.Group("/product")
+	productGroup.GET("/list", productController.ListProducts)
+	productGroup.POST("search", productController.SearchProducts)
+	productGroup.POST("/add", middleware.AdminAuthMiddleware(AppConfig.JwtSettings.SecretKey), productController.AddProduct)
+	productGroup.PUT("/update", middleware.AdminAuthMiddleware(AppConfig.JwtSettings.SecretKey), productController.UpdateProduct)
+	productGroup.DELETE("/delete", middleware.AdminAuthMiddleware(AppConfig.JwtSettings.SecretKey), productController.DeleteProduct)
 
 	categoryGroup := r.Group("/category")
 	categoryGroup.GET("/list", categoryController.CategoryList)

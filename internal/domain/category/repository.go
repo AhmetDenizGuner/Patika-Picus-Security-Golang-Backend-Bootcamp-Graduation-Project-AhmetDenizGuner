@@ -34,3 +34,12 @@ func (r *CategoryRepository) Create(c Category) error {
 
 	return nil
 }
+
+func (r *CategoryRepository) FindById(id int) (Category, error) {
+	var category Category
+	result := r.db.First(&category, id)
+	if result.Error != nil {
+		return Category{}, result.Error
+	}
+	return category, nil
+}

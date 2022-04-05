@@ -14,3 +14,12 @@ type SigninRequest struct {
 type SignoutRequest struct {
 	Email string `json:"email"`
 }
+
+type AddProductRequest struct {
+	Name          string  `json:"name"`
+	StockCode     string  `json:"stock_code"`
+	StockQuantity int     `json:"stock_quantity"`
+	Price         float64 `json:"price"`
+	Description   string  `json:"description"`
+	CategoryID    int     `json:"category_id"`
+}

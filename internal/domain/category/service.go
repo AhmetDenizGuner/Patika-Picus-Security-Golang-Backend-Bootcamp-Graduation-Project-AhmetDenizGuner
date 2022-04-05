@@ -44,3 +44,15 @@ func (service *CategoryService) AddBulkCategory(fileName string) error {
 
 	return nil
 }
+
+func (service *CategoryService) FetchCategoryById(id int) (Category, error) {
+
+	category, err := service.repository.FindById(id)
+
+	if err != nil {
+		return Category{}, err
+	}
+
+	return category, nil
+
+}

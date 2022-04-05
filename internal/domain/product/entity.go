@@ -28,3 +28,12 @@ func NewProduct(name, stockCode string, stockQuantity int, price float64, descri
 
 	return product
 }
+
+func (p *Product) Update(name, stockCode string, stockQuantity int, price float64, description string, categoryId uint) {
+	p.Name = name
+	p.StockCode = stockCode
+	p.StockQuantity = stockQuantity
+	p.Price = price
+	p.Description = description
+	p.CategoryID = categoryId
+}
