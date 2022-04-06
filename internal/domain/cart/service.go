@@ -105,3 +105,14 @@ func (service *CartService) fetchCartModelByUserID(userID int) (CartModel, error
 
 	return *cartModel, nil
 }
+
+func (service *CartService) FetchCartByUserId(UserID int) (Cart, error) {
+	cart, err := service.repository.FindByUserId(UserID)
+
+	if err != nil {
+		return Cart{}, err
+	}
+
+	return cart, nil
+
+}

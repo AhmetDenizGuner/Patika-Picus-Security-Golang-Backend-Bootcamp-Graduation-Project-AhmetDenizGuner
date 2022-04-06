@@ -47,6 +47,7 @@ func (c *CartController) AddCartItem(g *gin.Context) {
 	g.JSON(http.StatusCreated, requestModel)
 }
 
+//TODO create cart items check
 func (c *CartController) UpdateCartItem(g *gin.Context) {
 	var requestModel cart_item.CartItemModel
 

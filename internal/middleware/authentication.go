@@ -6,6 +6,7 @@ import (
 	"net/http"
 )
 
+// TODO check redis
 func UserAuthMiddleware(secretKey string) gin.HandlerFunc {
 	return func(c *gin.Context) {
 

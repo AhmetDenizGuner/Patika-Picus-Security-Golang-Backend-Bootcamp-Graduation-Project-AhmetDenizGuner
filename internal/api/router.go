@@ -5,6 +5,7 @@ import (
 	"github.com/AhmetDenizGuner/Patika-Picus-Security-Golang-Backend-Bootcamp-Graduation-Project-AhmetDenizGuner/internal/database"
 	"github.com/AhmetDenizGuner/Patika-Picus-Security-Golang-Backend-Bootcamp-Graduation-Project-AhmetDenizGuner/internal/domain/cart"
 	"github.com/AhmetDenizGuner/Patika-Picus-Security-Golang-Backend-Bootcamp-Graduation-Project-AhmetDenizGuner/internal/domain/category"
+	"github.com/AhmetDenizGuner/Patika-Picus-Security-Golang-Backend-Bootcamp-Graduation-Project-AhmetDenizGuner/internal/domain/order"
 	"github.com/AhmetDenizGuner/Patika-Picus-Security-Golang-Backend-Bootcamp-Graduation-Project-AhmetDenizGuner/internal/domain/product"
 	"github.com/AhmetDenizGuner/Patika-Picus-Security-Golang-Backend-Bootcamp-Graduation-Project-AhmetDenizGuner/internal/domain/user"
 	"github.com/AhmetDenizGuner/Patika-Picus-Security-Golang-Backend-Bootcamp-Graduation-Project-AhmetDenizGuner/internal/middleware"
@@ -42,6 +43,15 @@ func RegisterHandlers(r *gin.Engine) {
 	cartRepository := cart.NewCartRepository(db)
 	cartService := cart.NewCartService(*cartRepository)
 	cartController := cart.NewCartController(cartService, AppConfig)
+
+	orderRepository := order.NewOrderRepository(db)
+	orderService := order.NewOrderService(*orderRepository, cartService)
+	orderController := order.NewOrderController(orderService, AppConfig)
+
+	orderGroup := r.Group("/order")
+	orderGroup.POST("complete", middleware.UserAuthMiddleware(AppConfig.JwtSettings.SecretKey), orderController.CompleteOrder)
+	orderGroup.POST("/cancel", middleware.UserAuthMiddleware(AppConfig.JwtSettings.SecretKey), orderController.CancelOrder)
+	orderGroup.GET("/list", middleware.UserAuthMiddleware(AppConfig.JwtSettings.SecretKey), orderController.ListOrders)
 
 	cartGroup := r.Group("/cart")
 	cartGroup.GET("/list", middleware.UserAuthMiddleware(AppConfig.JwtSettings.SecretKey), cartController.AddCartItem)
