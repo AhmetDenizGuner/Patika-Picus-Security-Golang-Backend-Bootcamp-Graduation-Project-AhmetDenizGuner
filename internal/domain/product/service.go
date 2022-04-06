@@ -1,9 +1,11 @@
 package product
 
 import (
+	"errors"
 	"github.com/AhmetDenizGuner/Patika-Picus-Security-Golang-Backend-Bootcamp-Graduation-Project-AhmetDenizGuner/internal/api/types"
 	"github.com/AhmetDenizGuner/Patika-Picus-Security-Golang-Backend-Bootcamp-Graduation-Project-AhmetDenizGuner/internal/domain/category"
 	"github.com/AhmetDenizGuner/Patika-Picus-Security-Golang-Backend-Bootcamp-Graduation-Project-AhmetDenizGuner/pkg/pagination"
+	"gorm.io/gorm"
 )
 
 type ProductService struct {
@@ -138,4 +140,16 @@ func (service *ProductService) updateProduct(model ProductModel) error {
 	}
 
 	return nil
+}
+
+func (service *ProductService) FetchBySKU(sku string) (Product, error) {
+
+	product, err := service.repository.FindByStockCode(sku)
+
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return Product{}, err
+	}
+
+	return product, nil
+
 }

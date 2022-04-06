@@ -41,12 +41,12 @@ func RegisterHandlers(r *gin.Engine) {
 
 	cartRepository := cart.NewCartRepository(db)
 	cartService := cart.NewCartService(*cartRepository)
-	cartController := cart.NewCartController(cartService)
+	cartController := cart.NewCartController(cartService, AppConfig)
 
 	cartGroup := r.Group("/cart")
 	cartGroup.GET("/list", middleware.UserAuthMiddleware(AppConfig.JwtSettings.SecretKey), cartController.AddCartItem)
-	cartGroup.POST("/add-item")
-	cartGroup.PUT("/update-item")
+	cartGroup.POST("/add-item", middleware.UserAuthMiddleware(AppConfig.JwtSettings.SecretKey), cartController.UpdateCartItem)
+	cartGroup.PUT("/update-delete-item", middleware.UserAuthMiddleware(AppConfig.JwtSettings.SecretKey), cartController.ShowCart)
 
 	productGroup := r.Group("/product")
 	productGroup.GET("/list", productController.ListProducts)

@@ -5,6 +5,15 @@ import (
 )
 
 type CartItemModel struct {
-	product.ProductModel
+	Product  product.ProductModel
 	Quantity int
+}
+
+func NewCartItemModel(item CartItem) *CartItemModel {
+	model := &CartItemModel{
+		Quantity: item.Quantity,
+	}
+	model.Product = *product.NewProductModel(item.Product)
+
+	return model
 }
