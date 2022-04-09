@@ -39,26 +39,20 @@ func (c *CategoryController) CategoryList(g *gin.Context) {
 
 func (c *CategoryController) AddCategoryFromCSV(g *gin.Context) {
 
-	fmt.Println("Heloooooooooooooooooooooooooooooooooooooo11")
-
 	file, err := g.FormFile("file")
 	if err != nil {
 		g.JSON(http.StatusUnsupportedMediaType, gin.H{
 			"error_message": ErrUploadDataNotFoundOrNotSupported,
 		})
-		log.Fatal(err)
+		log.Println(err)
 	}
-
-	fmt.Println("Heloooooooooooooooooooooooooooooooooooooo22")
 
 	if strings.Compare(string(file.Filename[len(file.Filename)-4:]), ".csv") != 0 {
 		g.JSON(http.StatusUnsupportedMediaType, gin.H{
 			"error_message": ErrUploadDataNotFoundOrNotSupported,
 		})
-		log.Fatal(err)
+		log.Println(err)
 	}
-
-	fmt.Println("Heloooooooooooooooooooooooooooooooooooooo33")
 
 	err = g.SaveUploadedFile(file, ""+file.Filename)
 	if err != nil {
@@ -67,8 +61,6 @@ func (c *CategoryController) AddCategoryFromCSV(g *gin.Context) {
 		})
 		log.Fatal(err)
 	}
-
-	fmt.Println("Heloooooooooooooooooooooooooooooooooooooo44")
 
 	c.categoryService.AddBulkCategory("" + file.Filename)
 
