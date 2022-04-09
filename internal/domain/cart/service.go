@@ -147,3 +147,9 @@ func (service *CartService) CreateUserCart(id int) {
 	newCart := NewCart(id)
 	service.repository.Create(newCart)
 }
+
+func (service *CartService) ClearBasket(cart *Cart) {
+	for _, item := range cart.Items {
+		service.cartItemRepository.DeleteById(item.ID)
+	}
+}

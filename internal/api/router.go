@@ -7,6 +7,7 @@ import (
 	"github.com/AhmetDenizGuner/Patika-Picus-Security-Golang-Backend-Bootcamp-Graduation-Project-AhmetDenizGuner/internal/domain/cart/cart_item"
 	"github.com/AhmetDenizGuner/Patika-Picus-Security-Golang-Backend-Bootcamp-Graduation-Project-AhmetDenizGuner/internal/domain/category"
 	"github.com/AhmetDenizGuner/Patika-Picus-Security-Golang-Backend-Bootcamp-Graduation-Project-AhmetDenizGuner/internal/domain/order"
+	"github.com/AhmetDenizGuner/Patika-Picus-Security-Golang-Backend-Bootcamp-Graduation-Project-AhmetDenizGuner/internal/domain/order/order_item"
 	"github.com/AhmetDenizGuner/Patika-Picus-Security-Golang-Backend-Bootcamp-Graduation-Project-AhmetDenizGuner/internal/domain/product"
 	"github.com/AhmetDenizGuner/Patika-Picus-Security-Golang-Backend-Bootcamp-Graduation-Project-AhmetDenizGuner/internal/domain/role"
 	"github.com/AhmetDenizGuner/Patika-Picus-Security-Golang-Backend-Bootcamp-Graduation-Project-AhmetDenizGuner/internal/domain/user"
@@ -47,8 +48,10 @@ func RegisterHandlers(r *gin.Engine) {
 	cartService := cart.NewCartService(*cartRepository, *productService, *cartItemRepository)
 	cartController := cart.NewCartController(cartService, AppConfig)
 
+	orderItemRepository := order_item.NewOrderItemRepository(db)
+
 	orderRepository := order.NewOrderRepository(db)
-	orderService := order.NewOrderService(*orderRepository, cartService)
+	orderService := order.NewOrderService(*orderRepository, cartService, *orderItemRepository)
 	orderController := order.NewOrderController(orderService, AppConfig)
 
 	roleRepository := role.NewRoleRepository(db)
