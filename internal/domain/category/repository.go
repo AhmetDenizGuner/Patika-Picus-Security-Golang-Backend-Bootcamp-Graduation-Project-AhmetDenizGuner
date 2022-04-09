@@ -25,8 +25,20 @@ func (r *CategoryRepository) FindAll() (Category, error) {
 
 }
 
-func (r *CategoryRepository) Create(c Category) error {
-	result := r.db.Create(c)
+func (r *CategoryRepository) FindByPagination(offset, pageSize int) ([]Category, error) {
+	var categories []Category
+
+	result := r.db.Preload("Parent").Offset(offset).Limit(pageSize).Find(&categories)
+
+	if result.Error != nil {
+		return nil, result.Error
+	}
+
+	return categories, nil
+}
+
+func (r *CategoryRepository) Create(c *Category) error {
+	result := r.db.Create(&c)
 
 	if result.Error != nil {
 		return result.Error
@@ -42,4 +54,8 @@ func (r *CategoryRepository) FindById(id int) (Category, error) {
 		return Category{}, result.Error
 	}
 	return category, nil
+}
+
+func (r *CategoryRepository) MigrateTable() {
+	r.db.AutoMigrate(&Category{})
 }

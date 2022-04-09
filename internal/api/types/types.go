@@ -15,7 +15,7 @@ type SignoutRequest struct {
 	Email string `json:"email"`
 }
 
-type AddProductRequest struct {
+type AddProductRequest struct { //Also it used for updated product
 	Name          string  `json:"name"`
 	StockCode     string  `json:"stock_code"`
 	StockQuantity int     `json:"stock_quantity"`

@@ -2,6 +2,7 @@ package category
 
 import (
 	"fmt"
+	"github.com/AhmetDenizGuner/Patika-Picus-Security-Golang-Backend-Bootcamp-Graduation-Project-AhmetDenizGuner/pkg/pagination"
 	"github.com/gin-gonic/gin"
 	"log"
 	"net/http"
@@ -20,19 +21,25 @@ func NewCategoryController(service *CategoryService) *CategoryController {
 
 func (c *CategoryController) CategoryList(g *gin.Context) {
 
-	//responseModel is category root of category tree that keeps child category and this goes recursively
-	responseModel, err := c.categoryService.FetchCategoryRootForList()
+	page := pagination.NewFromGinRequest(g, -1)
+	categories, err := c.categoryService.fetchCategoriesWithPagination(*page)
 
 	if err != nil {
 		g.JSON(http.StatusInsufficientStorage, gin.H{
 			"error_message": ErrCategoryDataNotFound,
 		})
+		g.Abort()
+		return
 	}
 
-	g.JSON(http.StatusOK, responseModel)
+	page.Items = categories
+
+	g.JSON(http.StatusOK, page)
 }
 
 func (c *CategoryController) AddCategoryFromCSV(g *gin.Context) {
+
+	fmt.Println("Heloooooooooooooooooooooooooooooooooooooo11")
 
 	file, err := g.FormFile("file")
 	if err != nil {
@@ -42,6 +49,8 @@ func (c *CategoryController) AddCategoryFromCSV(g *gin.Context) {
 		log.Fatal(err)
 	}
 
+	fmt.Println("Heloooooooooooooooooooooooooooooooooooooo22")
+
 	if strings.Compare(string(file.Filename[len(file.Filename)-4:]), ".csv") != 0 {
 		g.JSON(http.StatusUnsupportedMediaType, gin.H{
 			"error_message": ErrUploadDataNotFoundOrNotSupported,
@@ -49,7 +58,9 @@ func (c *CategoryController) AddCategoryFromCSV(g *gin.Context) {
 		log.Fatal(err)
 	}
 
-	err = g.SaveUploadedFile(file, "saved/"+file.Filename)
+	fmt.Println("Heloooooooooooooooooooooooooooooooooooooo33")
+
+	err = g.SaveUploadedFile(file, ""+file.Filename)
 	if err != nil {
 		g.JSON(http.StatusInternalServerError, gin.H{
 			"error_message": "File cannot saved",
@@ -57,7 +68,9 @@ func (c *CategoryController) AddCategoryFromCSV(g *gin.Context) {
 		log.Fatal(err)
 	}
 
-	c.categoryService.AddBulkCategory("saved/" + file.Filename)
+	fmt.Println("Heloooooooooooooooooooooooooooooooooooooo44")
+
+	c.categoryService.AddBulkCategory("" + file.Filename)
 
 	g.JSON(http.StatusCreated, fmt.Sprintf("'%s' uploaded!", file.Filename))
 

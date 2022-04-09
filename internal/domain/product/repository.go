@@ -1,6 +1,9 @@
 package product
 
-import "gorm.io/gorm"
+import (
+	"gorm.io/gorm"
+	"strings"
+)
 
 type ProductRepository struct {
 	db *gorm.DB
@@ -27,7 +30,7 @@ func (r *ProductRepository) FindByPagination(offset, pageSize int) ([]Product, e
 func (r *ProductRepository) FindByPaginationAndKey(offset, pageSize int, key string) ([]Product, error) {
 	var products []Product
 	key = "%" + key + "%"
-	result := r.db.Preload("Category").Where("table_product.Name LIKE ? OR table_product.stock_code LIKE ? OR table_book.description LIKE ? COLLATE utf8_general_ci", key, key, key).Offset(offset).Limit(pageSize).Find(&products)
+	result := r.db.Preload("Category").Where("upper(table_product.Name) LIKE ? OR upper(table_product.stock_code) LIKE ? OR upper(table_product.description) LIKE ?", strings.ToUpper(key), strings.ToUpper(key), strings.ToUpper(key)).Offset(offset).Limit(pageSize).Find(&products)
 
 	if result.Error != nil {
 		return nil, result.Error
@@ -39,7 +42,7 @@ func (r *ProductRepository) FindByPaginationAndKey(offset, pageSize int, key str
 func (r *ProductRepository) FindByStockCode(code string) (Product, error) {
 	var product Product
 
-	result := r.db.Where("stock_code = ?", code).Find(&product)
+	result := r.db.Where("stock_code = ?", code).First(&product)
 
 	if result.Error != nil {
 		return Product{}, result.Error
@@ -48,8 +51,8 @@ func (r *ProductRepository) FindByStockCode(code string) (Product, error) {
 	return product, nil
 }
 
-func (r *ProductRepository) Create(p Product) error {
-	result := r.db.Create(p)
+func (r *ProductRepository) Create(p *Product) error {
+	result := r.db.Create(&p)
 
 	if result.Error != nil {
 		return result.Error
@@ -70,7 +73,7 @@ func (r *ProductRepository) FindByID(id int) (Product, error) {
 	return product, nil
 }
 
-func (r *ProductRepository) DeleteById(id int) error {
+func (r *ProductRepository) DeleteById(id uint) error {
 	result := r.db.Delete(&Product{}, id)
 
 	if result.Error != nil {
@@ -88,4 +91,8 @@ func (r *ProductRepository) Update(p Product) error {
 	}
 
 	return nil
+}
+
+func (r *ProductRepository) MigrateTable() {
+	r.db.AutoMigrate(&Product{})
 }

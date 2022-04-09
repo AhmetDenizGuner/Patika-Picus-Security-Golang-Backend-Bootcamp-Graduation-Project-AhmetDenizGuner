@@ -16,6 +16,7 @@ type (
 		DatabaseSettings
 		//NewRelicSettings
 		JwtSettings
+		RedisSettings
 	}
 
 	DatabaseSettings struct {
@@ -31,6 +32,10 @@ type (
 	JwtSettings struct {
 		SecretKey string
 	}
+	RedisSettings struct {
+		AddrUrI string
+	}
+
 	configReader struct {
 		configFile string
 		v          *viper.Viper
@@ -40,13 +45,13 @@ type (
 func GetAllConfigValues(configFile string) (configuration *Configuration, err error) {
 	newConfigReader(configFile)
 	if err = cfgReader.v.ReadInConfig(); err != nil {
-		fmt.Printf("Failed to read config file : %s", err)
+		fmt.Printf("Failed to read config file : %s\n", err)
 		return nil, err
 	}
 
 	err = cfgReader.v.Unmarshal(&configuration)
 	if err != nil {
-		fmt.Printf("Failed to unmarshal yaml file to configuration struct : %s", err)
+		fmt.Printf("Failed to unmarshal yaml file to configuration struct : %s\n", err)
 		return nil, err
 	}
 

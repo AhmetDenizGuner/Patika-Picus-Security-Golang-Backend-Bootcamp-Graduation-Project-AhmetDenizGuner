@@ -1,9 +1,10 @@
 package cart
 
 import (
+	"errors"
+	"fmt"
 	"github.com/AhmetDenizGuner/Patika-Picus-Security-Golang-Backend-Bootcamp-Graduation-Project-AhmetDenizGuner/internal/domain/cart/cart_item"
 	"github.com/AhmetDenizGuner/Patika-Picus-Security-Golang-Backend-Bootcamp-Graduation-Project-AhmetDenizGuner/internal/domain/product"
-	"github.com/pkg/errors"
 	"gorm.io/gorm"
 )
 
@@ -78,12 +79,12 @@ func (c *Cart) UpdateItem(itemProductId int, quantity int) (err error) {
 	if index, item := c.SearchItem(itemProductId); index != -1 {
 
 		if quantity >= maxAllowedQtyPerProduct {
-			return errors.Errorf("You can't add more item. Item count can be less then %d", maxAllowedQtyPerProduct)
+			return errors.New(fmt.Sprintf("You can't add more item. Item count can be less then %d", maxAllowedQtyPerProduct))
 		}
 
 		item.Quantity = quantity
 	} else {
-		return errors.Errorf("Item can not found. ItemProductId : %s", itemProductId)
+		return errors.New(fmt.Sprintf("Item can not found. ItemProductId : %s", itemProductId))
 	}
 
 	return

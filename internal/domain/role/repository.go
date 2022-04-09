@@ -12,13 +12,29 @@ func NewRoleRepository(db *gorm.DB) *RoleRepository {
 	}
 }
 
-func (r *RoleRepository) Create(role Role) error {
+func (r *RoleRepository) MigrateTable() {
+	r.db.AutoMigrate(&Role{})
+}
 
-	result := r.db.Create(role)
+func (r *RoleRepository) Create(role *Role) error {
+
+	result := r.db.Create(&role)
 
 	if result.Error != nil {
 		return result.Error
 	}
 
 	return nil
+}
+
+func (r *RoleRepository) FindByName(name string) (Role, error) {
+	var product Role
+
+	result := r.db.Where("id = ?", name).Find(&product)
+
+	if result.Error != nil {
+		return Role{}, result.Error
+	}
+
+	return product, nil
 }

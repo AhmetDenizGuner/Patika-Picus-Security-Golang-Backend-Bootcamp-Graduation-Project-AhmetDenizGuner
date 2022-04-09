@@ -4,8 +4,11 @@ import (
 	"errors"
 	"github.com/AhmetDenizGuner/Patika-Picus-Security-Golang-Backend-Bootcamp-Graduation-Project-AhmetDenizGuner/internal/api/types"
 	"github.com/AhmetDenizGuner/Patika-Picus-Security-Golang-Backend-Bootcamp-Graduation-Project-AhmetDenizGuner/internal/domain/category"
+	"github.com/AhmetDenizGuner/Patika-Picus-Security-Golang-Backend-Bootcamp-Graduation-Project-AhmetDenizGuner/pkg/csv"
 	"github.com/AhmetDenizGuner/Patika-Picus-Security-Golang-Backend-Bootcamp-Graduation-Project-AhmetDenizGuner/pkg/pagination"
 	"gorm.io/gorm"
+	"log"
+	"strconv"
 )
 
 type ProductService struct {
@@ -67,68 +70,65 @@ func (service *ProductService) searchProductsWithPagination(page pagination.Page
 
 func (service *ProductService) addNewProduct(newProduct types.AddProductRequest) error {
 
-	if newProduct.Price <= 0 || newProduct.StockQuantity <= 0 {
+	if newProduct.Price <= 0 || newProduct.StockQuantity <= 0 || newProduct.CategoryID < 1 {
 		return ErrProductFieldsMustBePositive
 	}
 
 	_, err := service.repository.FindByStockCode(newProduct.StockCode)
 
-	if err == nil {
+	if !errors.Is(err, gorm.ErrRecordNotFound) {
 		return ErrProductStockCodeMustBeUnique
 	}
 
 	_, err1 := service.categoryService.FetchCategoryById(newProduct.CategoryID)
 
-	if err1 == nil {
+	if err1 != nil {
 		return err1
 	}
 
 	product := NewProduct(newProduct.Name, newProduct.StockCode, newProduct.StockQuantity, newProduct.Price, newProduct.Description, uint(newProduct.CategoryID))
 
-	err2 := service.repository.Create(*product)
+	err2 := service.repository.Create(product)
 
-	if err2 == nil {
+	if err2 != nil {
 		return err2
 	}
 
 	return nil
 }
 
-func (service *ProductService) deleteProduct(id int) error {
+func (service *ProductService) deleteProduct(stockCode string) error {
 
-	product, err := service.repository.FindByID(id)
+	product, err := service.repository.FindByStockCode(stockCode)
 
 	if err != nil {
+		log.Println(err)
 		return err
 	}
 
 	//TODO check active orders
 
-	err1 := service.repository.DeleteById(int(product.ID))
+	err1 := service.repository.DeleteById(product.ID)
 
 	if err1 != nil {
+		log.Println(err1)
 		return err1
 	}
 
 	return nil
 }
 
-func (service *ProductService) updateProduct(model ProductModel) error {
+func (service *ProductService) updateProduct(model types.AddProductRequest) error {
 
-	if model.Price <= 0 || model.StockQuantity <= 0 {
+	if model.Price <= 0 || model.StockQuantity <= 0 || model.CategoryID < 1 {
 		return ErrProductFieldsMustBePositive
 	}
 
-	_, err := service.repository.FindByStockCode(model.StockCode)
+	product, err := service.repository.FindByStockCode(model.StockCode)
 
-	if err == nil {
-		return ErrProductStockCodeMustBeUnique
-	}
-
-	product, err1 := service.repository.FindByID(model.Id)
-
-	if err1 != nil {
-		return err1
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		log.Println(err.Error())
+		return err
 	}
 
 	product.Update(model.Name, model.StockCode, model.StockQuantity, model.Price, model.Description, uint(model.CategoryID))
@@ -152,4 +152,37 @@ func (service *ProductService) FetchBySKU(sku string) (Product, error) {
 
 	return product, nil
 
+}
+
+func (service *ProductService) InsertSampleData() {
+
+	tableExist := service.repository.db.Migrator().HasTable(&Product{})
+
+	if !tableExist {
+
+		service.repository.MigrateTable()
+
+		//read category csv
+		productSlice, err := csv.ReadCsv("products.csv", 1)
+
+		//Name,StockCode,StockQuantity,Price,Description,CategoryID
+
+		if err != nil {
+			log.Println(err)
+			log.Println("CSV cannot be read!")
+			return
+		}
+
+		for _, product_line := range productSlice {
+			name := product_line[0]
+			stockCode := product_line[1]
+			stockQuantity, _ := strconv.Atoi(product_line[2])
+			price, _ := strconv.ParseFloat(product_line[3], 64)
+			description := product_line[4]
+			categoryID, _ := strconv.Atoi(product_line[5])
+
+			product := NewProduct(name, stockCode, stockQuantity, price, description, uint(categoryID))
+			service.repository.Create(product)
+		}
+	}
 }

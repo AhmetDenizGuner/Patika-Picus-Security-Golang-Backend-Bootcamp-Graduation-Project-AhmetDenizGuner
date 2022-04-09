@@ -14,14 +14,16 @@ type User struct {
 	Email        string `validate:"email"`
 	Password     string `validate:"min=3"`
 	PasswordHash string
-	Roles        []role.Role `gorm:"many2many:user_role;"`
+	RoleID       uint
+	Role         role.Role `gorm:"foreignKey:RoleID"`
 }
 
-func NewUser(name, email, password string) *User {
+func NewUser(name, email, password string, roleId int) *User {
 	user := &User{
 		Name:         name,
 		Email:        email,
 		Password:     password,
+		RoleID:       uint(roleId),
 		PasswordHash: "",
 	}
 

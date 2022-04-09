@@ -1,0 +1,7 @@
+Name,StockCode,StockQuantity,Price,Description,CategoryID
+product1,123456,5,3.5,this is product,2
+product2,123457,5,5.5,this is product,3
+product3,123457,8,6.5,this is product,4
+product12,1234568,51,13.5,this is product,2
+product23,1234579,7,65.5,this is product,2
+product34,1234570,18,61.5,this is product,4

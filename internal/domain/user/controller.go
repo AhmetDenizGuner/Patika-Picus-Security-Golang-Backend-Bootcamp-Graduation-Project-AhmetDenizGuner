@@ -1,6 +1,7 @@
 package user
 
 import (
+	"fmt"
 	"github.com/AhmetDenizGuner/Patika-Picus-Security-Golang-Backend-Bootcamp-Graduation-Project-AhmetDenizGuner/internal/api/types"
 	"github.com/AhmetDenizGuner/Patika-Picus-Security-Golang-Backend-Bootcamp-Graduation-Project-AhmetDenizGuner/internal/config"
 	jwtHelper "github.com/AhmetDenizGuner/Patika-Picus-Security-Golang-Backend-Bootcamp-Graduation-Project-AhmetDenizGuner/pkg/jwt"
@@ -8,6 +9,7 @@ import (
 	"github.com/AhmetDenizGuner/Patika-Picus-Security-Golang-Backend-Bootcamp-Graduation-Project-AhmetDenizGuner/shared"
 	"github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/gin"
+	"log"
 	"net/http"
 	"os"
 	"time"
@@ -33,8 +35,9 @@ func (c *UserController) SignUp(g *gin.Context) {
 	//check request body is correct form
 	if err := g.ShouldBind(&requestModel); err != nil {
 		g.JSON(http.StatusBadRequest, gin.H{
-			"error_message": shared.GeneralErrorRequestBodyNotCorrect,
+			"error_message": shared.GeneralErrorRequestBodyNotCorrect.Error(),
 		})
+		return
 	}
 
 	//service call
@@ -44,6 +47,7 @@ func (c *UserController) SignUp(g *gin.Context) {
 		g.JSON(http.StatusBadRequest, gin.H{
 			"error_message": "Check your form of inputs. Error: " + err2.Error(),
 		})
+		return
 	}
 
 	g.JSON(http.StatusCreated, requestModel)
@@ -54,38 +58,59 @@ func (c *UserController) SignIn(g *gin.Context) {
 	var requestModel types.SigninRequest
 
 	//check request body is correct form
-	if err := g.ShouldBind(&requestModel); err != nil {
+	if err := g.ShouldBindJSON(&requestModel); err != nil {
+		fmt.Println(err)
 		g.JSON(http.StatusBadRequest, gin.H{
-			"error_message": shared.GeneralErrorRequestBodyNotCorrect,
+			"error_message": shared.GeneralErrorRequestBodyNotCorrect.Error(),
 		})
+		g.Abort()
+		return
 	}
 
 	//service call
 	user, err2 := c.userService.SignInService(requestModel)
 
+	//check user is exist
 	if err2 != nil {
 		g.JSON(http.StatusNotFound, gin.H{
 			"error_message": "User not found or password is not correct!",
 		})
+		g.Abort()
+		return
+
 	}
 
+	log.Println("USER --> " + user.Role.Name)
+
+	//generate jwt token
 	jwtClaims := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		"userID": user.ID,
 		"email":  user.Email,
 		"iat":    time.Now().Unix(),
 		"iss":    os.Getenv("ENV"),
 		"exp":    time.Now().Add(time.Hour).Unix(),
-		"roles":  user.Roles,
+		"role":   user.Role,
 	})
 	token := jwtHelper.GenerateToken(jwtClaims, c.appConfig.JwtSettings.SecretKey)
 
+	//save the token to redis
 	err3 := c.redisClient.SetKey(user.Email, token, time.Hour)
 
 	if err3 != nil {
+		log.Fatalln("Redis is unreachable!")
 		g.JSON(http.StatusBadGateway, gin.H{
 			"error_message": "Inmemory cache is unreachable!",
 		})
+		g.Abort()
+		return
 	}
+
+	//ok request
+	log.Println(fmt.Sprintf("User id: %d, email: %s is login", user.ID, user.Email))
+	//TODO
+	log.Println(token)
+	log.Println(jwtHelper.VerifyToken(token, c.appConfig.SecretKey))
+	log.Println(jwtHelper.VerifyToken(token, c.appConfig.SecretKey).Role.Name)
 
 	g.JSON(http.StatusOK, token)
 
@@ -99,6 +124,7 @@ func (c *UserController) SignOut(g *gin.Context) {
 		g.JSON(http.StatusBadRequest, gin.H{
 			"error_message": shared.GeneralErrorRequestBodyNotCorrect,
 		})
+		return
 	}
 
 	token := g.GetHeader("Authorization")

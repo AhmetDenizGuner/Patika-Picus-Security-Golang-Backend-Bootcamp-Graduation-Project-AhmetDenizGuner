@@ -5,6 +5,7 @@ import (
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 	"gorm.io/gorm/schema"
+	"time"
 )
 
 var DB *gorm.DB
@@ -18,9 +19,9 @@ func Connect(dsn string) *gorm.DB {
 			TablePrefix:   "table_",
 			SingularTable: true,
 		},
-		/*NowFunc: func() time.Time {
+		NowFunc: func() time.Time {
 			return time.Now().UTC()
-		},*/
+		},
 	})
 
 	if err != nil {

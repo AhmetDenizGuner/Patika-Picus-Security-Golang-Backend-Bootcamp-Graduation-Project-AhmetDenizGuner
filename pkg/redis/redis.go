@@ -13,7 +13,7 @@ type RedisClient struct {
 
 func NewRedisClient(appConfig *config.Configuration) *RedisClient {
 	c := redis.NewClient(&redis.Options{
-		Addr: "",
+		Addr: appConfig.RedisSettings.AddrUrI,
 	})
 
 	if err := c.Ping().Err(); err != nil {
