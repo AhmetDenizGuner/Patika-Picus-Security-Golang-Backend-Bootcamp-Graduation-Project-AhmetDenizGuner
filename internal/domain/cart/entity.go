@@ -30,16 +30,6 @@ func NewCart(userId int) *Cart {
 	return cart
 }
 
-func NewCartWithItems(userId int, items []cart_item.CartItem) *Cart {
-	cart := &Cart{
-		UserID:     uint(userId),
-		TotalPrice: 0,
-		Items:      items,
-	}
-	cart.CalculateTotalPrice()
-	return cart
-}
-
 func (c *Cart) CalculateTotalPrice() {
 
 	c.TotalPrice = 0
@@ -51,12 +41,6 @@ func (c *Cart) CalculateTotalPrice() {
 }
 
 func (c *Cart) AddItem(product product.Product) (*cart_item.CartItem, error) {
-	/*if quantity >= maxAllowedQtyPerProduct {
-		return nil, errors.Errorf("You can't add more this item to your basket. Maximum allowed item count is %d", maxAllowedQtyPerProduct)
-	}
-	if (len(c.Items) + quantity) >= maxAllowedForBasket {
-		return nil, errors.Errorf("You can't add more item to your basket. Maximum allowed basket item count is %d", maxAllowedForBasket)
-	} */
 
 	_, item := c.SearchItem(int(product.ID))
 	if item != nil {
@@ -76,26 +60,16 @@ func (c *Cart) AddItem(product product.Product) (*cart_item.CartItem, error) {
 
 func (c *Cart) UpdateItem(itemProductId int, quantity int) (err error) {
 
-	if index, item := c.SearchItem(itemProductId); index != -1 {
+	if index, _ := c.SearchItem(itemProductId); index != -1 {
 
 		if quantity >= maxAllowedQtyPerProduct {
 			return errors.New(fmt.Sprintf("You can't add more item. Item count can be less then %d", maxAllowedQtyPerProduct))
 		}
 
-		item.Quantity = quantity
+		c.Items[index].Quantity = quantity
+		c.CalculateTotalPrice()
 	} else {
 		return errors.New(fmt.Sprintf("Item can not found. ItemProductId : %s", itemProductId))
-	}
-
-	return
-}
-
-func (c *Cart) RemoveItem(itemProductId int) (err error) {
-
-	if index, _ := c.SearchItem(itemProductId); index != -1 {
-		c.Items = append(c.Items[:index], c.Items[index+1:]...)
-	} else {
-		return ErrNotFound
 	}
 
 	return

@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/AhmetDenizGuner/Patika-Picus-Security-Golang-Backend-Bootcamp-Graduation-Project-AhmetDenizGuner/internal/api/types"
+	"github.com/AhmetDenizGuner/Patika-Picus-Security-Golang-Backend-Bootcamp-Graduation-Project-AhmetDenizGuner/internal/domain/cart"
 	"github.com/AhmetDenizGuner/Patika-Picus-Security-Golang-Backend-Bootcamp-Graduation-Project-AhmetDenizGuner/internal/domain/role"
 	"github.com/AhmetDenizGuner/Patika-Picus-Security-Golang-Backend-Bootcamp-Graduation-Project-AhmetDenizGuner/pkg/redis"
 	"log"
@@ -13,13 +14,15 @@ import (
 type UserService struct {
 	repository     UserRepository
 	roleRepository role.RoleRepository
+	cartService    cart.CartService
 }
 
 //NewUserService is constructor of UserService
-func NewUserService(r UserRepository, roleRepository role.RoleRepository) *UserService {
+func NewUserService(r UserRepository, roleRepository role.RoleRepository, cartService cart.CartService) *UserService {
 	return &UserService{
 		repository:     r,
 		roleRepository: roleRepository,
+		cartService:    cartService,
 	}
 }
 
@@ -48,6 +51,14 @@ func (service *UserService) SignupService(userInfo types.SignupRequest) error {
 	if err3 != nil {
 		return err3
 	}
+
+	//crate user cart
+	userRegistered, err4 := service.repository.FindByEmail(userInfo.Email)
+
+	if err4 != nil {
+		return errors.New("User created but user cart cannot be created.")
+	}
+	service.cartService.CreateUserCart(int(userRegistered.ID))
 
 	return nil
 }
@@ -105,14 +116,17 @@ func (service *UserService) InsertSampleData() {
 
 	if !tableExist {
 		service.repository.MigrateTable()
+		service.cartService.CreateDbSchema()
 
 		//admin
 		admin := NewUser("admin", "admin@picus.com", "admin", 2)
 		service.repository.Create(admin)
+		service.cartService.CreateUserCart(1)
 
 		//user
 		user := NewUser("user", "user@picus.com", "1234", 1)
 		service.repository.Create(user)
+		service.cartService.CreateUserCart(2)
 
 	}
 }

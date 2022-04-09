@@ -12,6 +12,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"strconv"
 	"time"
 )
 
@@ -80,11 +81,9 @@ func (c *UserController) SignIn(g *gin.Context) {
 
 	}
 
-	log.Println("USER --> " + user.Role.Name)
-
 	//generate jwt token
 	jwtClaims := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
-		"userID": user.ID,
+		"userID": strconv.Itoa(int(user.ID)),
 		"email":  user.Email,
 		"iat":    time.Now().Unix(),
 		"iss":    os.Getenv("ENV"),

@@ -64,7 +64,7 @@ func (r *ProductRepository) Create(p *Product) error {
 func (r *ProductRepository) FindByID(id int) (Product, error) {
 	var product Product
 
-	result := r.db.Where("id = ?", id).Find(&product)
+	result := r.db.Where("id = ?", id).First(&product)
 
 	if result.Error != nil {
 		return Product{}, result.Error

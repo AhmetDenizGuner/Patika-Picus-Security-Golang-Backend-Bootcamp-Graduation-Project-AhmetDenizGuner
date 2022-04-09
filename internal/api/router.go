@@ -4,6 +4,7 @@ import (
 	"github.com/AhmetDenizGuner/Patika-Picus-Security-Golang-Backend-Bootcamp-Graduation-Project-AhmetDenizGuner/internal/config"
 	"github.com/AhmetDenizGuner/Patika-Picus-Security-Golang-Backend-Bootcamp-Graduation-Project-AhmetDenizGuner/internal/database"
 	"github.com/AhmetDenizGuner/Patika-Picus-Security-Golang-Backend-Bootcamp-Graduation-Project-AhmetDenizGuner/internal/domain/cart"
+	"github.com/AhmetDenizGuner/Patika-Picus-Security-Golang-Backend-Bootcamp-Graduation-Project-AhmetDenizGuner/internal/domain/cart/cart_item"
 	"github.com/AhmetDenizGuner/Patika-Picus-Security-Golang-Backend-Bootcamp-Graduation-Project-AhmetDenizGuner/internal/domain/category"
 	"github.com/AhmetDenizGuner/Patika-Picus-Security-Golang-Backend-Bootcamp-Graduation-Project-AhmetDenizGuner/internal/domain/order"
 	"github.com/AhmetDenizGuner/Patika-Picus-Security-Golang-Backend-Bootcamp-Graduation-Project-AhmetDenizGuner/internal/domain/product"
@@ -40,8 +41,10 @@ func RegisterHandlers(r *gin.Engine) {
 	productService := product.NewProductService(*productRepository, *categoryService)
 	productController := product.NewProductController(productService)
 
+	cartItemRepository := cart_item.NewCartItemRepository(db)
+
 	cartRepository := cart.NewCartRepository(db)
-	cartService := cart.NewCartService(*cartRepository)
+	cartService := cart.NewCartService(*cartRepository, *productService, *cartItemRepository)
 	cartController := cart.NewCartController(cartService, AppConfig)
 
 	orderRepository := order.NewOrderRepository(db)
@@ -52,7 +55,7 @@ func RegisterHandlers(r *gin.Engine) {
 	roleService := role.NewRoleService(*roleRepository)
 
 	userRepository := user.NewUserRepository(db)
-	userService := user.NewUserService(*userRepository, *roleRepository)
+	userService := user.NewUserService(*userRepository, *roleRepository, *cartService)
 	userController := user.NewUserController(userService, AppConfig, redisClient)
 
 	//TODO - Create DB Schema and Insert Sample Data
@@ -67,9 +70,9 @@ func RegisterHandlers(r *gin.Engine) {
 	orderGroup.GET("/list", middleware.UserAuthMiddleware(AppConfig.JwtSettings.SecretKey, redisClient), orderController.ListOrders)
 
 	cartGroup := r.Group("/cart")
-	cartGroup.GET("/list", middleware.UserAuthMiddleware(AppConfig.JwtSettings.SecretKey, redisClient), cartController.AddCartItem)
-	cartGroup.POST("/add-item", middleware.UserAuthMiddleware(AppConfig.JwtSettings.SecretKey, redisClient), cartController.UpdateCartItem)
-	cartGroup.PUT("/update-delete-item", middleware.UserAuthMiddleware(AppConfig.JwtSettings.SecretKey, redisClient), cartController.ShowCart)
+	cartGroup.GET("/list", middleware.UserAuthMiddleware(AppConfig.JwtSettings.SecretKey, redisClient), cartController.ShowCart)
+	cartGroup.POST("/add-item", middleware.UserAuthMiddleware(AppConfig.JwtSettings.SecretKey, redisClient), cartController.AddCartItem)
+	cartGroup.PUT("/update-delete-item", middleware.UserAuthMiddleware(AppConfig.JwtSettings.SecretKey, redisClient), cartController.UpdateCartItem)
 
 	productGroup := r.Group("/product")
 	productGroup.GET("/list", productController.ListProducts)

@@ -2,10 +2,7 @@ package cart
 
 import (
 	"github.com/AhmetDenizGuner/Patika-Picus-Security-Golang-Backend-Bootcamp-Graduation-Project-AhmetDenizGuner/internal/config"
-	"github.com/AhmetDenizGuner/Patika-Picus-Security-Golang-Backend-Bootcamp-Graduation-Project-AhmetDenizGuner/internal/domain/cart/cart_item"
-	"github.com/AhmetDenizGuner/Patika-Picus-Security-Golang-Backend-Bootcamp-Graduation-Project-AhmetDenizGuner/internal/domain/product"
 	jwtHelper "github.com/AhmetDenizGuner/Patika-Picus-Security-Golang-Backend-Bootcamp-Graduation-Project-AhmetDenizGuner/pkg/jwt"
-	"github.com/AhmetDenizGuner/Patika-Picus-Security-Golang-Backend-Bootcamp-Graduation-Project-AhmetDenizGuner/shared"
 	"github.com/gin-gonic/gin"
 	"net/http"
 	"strconv"
@@ -24,51 +21,40 @@ func NewCartController(service *CartService, configuration *config.Configuration
 }
 
 func (c *CartController) AddCartItem(g *gin.Context) {
-	var requestModel product.ProductModel
 
-	//check request body is correct form
-	if err := g.ShouldBind(&requestModel); err != nil {
-		g.JSON(http.StatusBadRequest, gin.H{
-			"error_message": shared.GeneralErrorRequestBodyNotCorrect,
-		})
-	}
+	stockCode := g.PostForm("stock_code")
 
 	userId := getUserIdFromAuthToken(g.GetHeader("Authorization"), c.appConfig.JwtSettings.SecretKey)
-
-	err := c.cartService.addItem(requestModel, userId)
+	err := c.cartService.addItem(stockCode, userId)
 
 	if err != nil {
 		g.JSON(http.StatusBadRequest, gin.H{
-			"error_message": err,
+			"error_message": err.Error(),
 		})
+		g.Abort()
+		return
 	}
 
 	//TODO - check response
-	g.JSON(http.StatusCreated, requestModel)
+	g.JSON(http.StatusCreated, stockCode)
 }
 
 //TODO create cart items check
 func (c *CartController) UpdateCartItem(g *gin.Context) {
-	var requestModel cart_item.CartItemModel
-
-	//check request body is correct form
-	if err := g.ShouldBind(&requestModel); err != nil {
-		g.JSON(http.StatusBadRequest, gin.H{
-			"error_message": shared.GeneralErrorRequestBodyNotCorrect,
-		})
-	}
+	stockCode := g.PostForm("stock_code")
+	updateQuantity := g.PostForm("update_quantity")
 
 	userId := getUserIdFromAuthToken(g.GetHeader("Authorization"), c.appConfig.JwtSettings.SecretKey)
 
-	err := c.cartService.updateCartItem(requestModel, userId)
+	err := c.cartService.updateCartItem(stockCode, updateQuantity, userId)
 
 	if err != nil {
 		g.JSON(http.StatusBadRequest, gin.H{
-			"error_message": err,
+			"error_message": err.Error(),
 		})
 	}
 
-	g.JSON(http.StatusOK, requestModel)
+	g.JSON(http.StatusOK, "updated")
 
 }
 
@@ -79,7 +65,7 @@ func (c *CartController) ShowCart(g *gin.Context) {
 
 	if err != nil {
 		g.JSON(http.StatusBadRequest, gin.H{
-			"error_message": err,
+			"error_message": err.Error(),
 		})
 	}
 
