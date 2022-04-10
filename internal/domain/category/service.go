@@ -108,7 +108,7 @@ func (service *CategoryService) InsertSampleData() {
 		service.repository.Create(rootCategory)
 
 		//read category csv
-		categorySlice, err := csv.ReadCsv("category.csv", 1)
+		categorySlice, err := csv.ReadCsv("../../resources/category.csv", 1)
 
 		if err != nil {
 			log.Println(err)

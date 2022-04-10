@@ -54,7 +54,7 @@ func (c *CategoryController) AddCategoryFromCSV(g *gin.Context) {
 		log.Println(err)
 	}
 
-	err = g.SaveUploadedFile(file, ""+file.Filename)
+	err = g.SaveUploadedFile(file, "../../resources/uploaded"+file.Filename)
 	if err != nil {
 		g.JSON(http.StatusInternalServerError, gin.H{
 			"error_message": "File cannot saved",

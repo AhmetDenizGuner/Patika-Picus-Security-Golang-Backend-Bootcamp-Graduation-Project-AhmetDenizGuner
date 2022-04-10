@@ -185,7 +185,7 @@ func (service *ProductService) InsertSampleData() {
 		service.repository.MigrateTable()
 
 		//read category csv
-		productSlice, err := csv.ReadCsv("products.csv", 1)
+		productSlice, err := csv.ReadCsv("../../resources/products.csv", 1)
 
 		//Name,StockCode,StockQuantity,Price,Description,CategoryID
 

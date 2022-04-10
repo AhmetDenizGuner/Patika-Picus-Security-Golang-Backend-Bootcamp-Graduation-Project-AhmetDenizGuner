@@ -9,9 +9,7 @@ import (
 )
 
 var (
-	maxAllowedForBasket             = 20
-	maxAllowedQtyPerProduct         = 9
-	minCartAmountForOrder   float64 = 50
+	maxAllowedQtyPerProduct = 9
 )
 
 type Cart struct {
