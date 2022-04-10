@@ -19,52 +19,68 @@ func NewProductController(service *ProductService) *ProductController {
 	}
 }
 
+//ListProducts get the products list with pagination
 func (c *ProductController) ListProducts(g *gin.Context) {
+	//prepare page and get products
 	page := pagination.NewFromGinRequest(g, -1)
-
 	products, err := c.productService.fetchProductsWithPagination(*page)
 
 	if err != nil {
-		g.JSON(http.StatusBadGateway, gin.H{
-			"error_message": "DB connection problem!",
+		log.Println(err.Error())
+		g.JSON(http.StatusBadGateway, shared.ApiErrorResponse{
+			IsSuccess:    false,
+			ErrorMessage: "DB connection problem!",
 		})
 		g.Abort()
 		return
 	}
-
+	//assign products
 	page.Items = products
 
-	g.JSON(http.StatusOK, page)
+	g.JSON(http.StatusOK, shared.ApiOkResponse{
+		IsSuccess: true,
+		Message:   "ok",
+		Data:      page})
 }
 
+//SearchProducts search the products with pagination
 func (c *ProductController) SearchProducts(g *gin.Context) {
+	//prepare page
 	page := pagination.NewFromGinRequest(g, -1)
-
+	//get search keyword from query
 	searchItem := g.Query("searchKeyword")
 
+	//search product
 	products, err := c.productService.searchProductsWithPagination(*page, searchItem)
 
 	if err != nil {
-		g.JSON(http.StatusBadRequest, gin.H{
-			"error_message": err,
+		log.Println(err.Error())
+		g.JSON(http.StatusBadRequest, shared.ApiErrorResponse{
+			IsSuccess:    false,
+			ErrorMessage: err.Error(),
 		})
 		g.Abort()
 		return
 	}
-
+	//assign products to page
 	page.Items = products
 
-	g.JSON(http.StatusOK, page)
+	g.JSON(http.StatusOK, shared.ApiOkResponse{
+		IsSuccess: true,
+		Message:   "ok",
+		Data:      page})
 }
 
+//AddProduct creates new product
 func (c *ProductController) AddProduct(g *gin.Context) {
 	var requestModel types.AddProductRequest
 
 	//check request body is correct form
 	if err := g.ShouldBind(&requestModel); err != nil {
 		log.Println(err.Error())
-		g.JSON(http.StatusBadRequest, gin.H{
-			"error_message": shared.GeneralErrorRequestBodyNotCorrect,
+		g.JSON(http.StatusBadRequest, shared.ApiErrorResponse{
+			IsSuccess:    false,
+			ErrorMessage: shared.GeneralErrorRequestBodyNotCorrect.Error(),
 		})
 		g.Abort()
 		return
@@ -74,17 +90,23 @@ func (c *ProductController) AddProduct(g *gin.Context) {
 
 	if err != nil {
 		log.Println(err.Error())
-		g.JSON(http.StatusBadRequest, gin.H{
-			"error_message": err.Error(),
+		g.JSON(http.StatusBadRequest, shared.ApiErrorResponse{
+			IsSuccess:    false,
+			ErrorMessage: err.Error(),
 		})
 		g.Abort()
 		return
 	}
 
 	log.Println("ProductName: " + requestModel.Name + " added.")
-	g.JSON(http.StatusCreated, requestModel)
+	g.JSON(http.StatusCreated, shared.ApiOkResponse{
+		IsSuccess: true,
+		Message:   "ok",
+		Data:      requestModel,
+	})
 }
 
+//DeleteProduct remove the product fromDB
 func (c *ProductController) DeleteProduct(g *gin.Context) {
 
 	stockCode := g.PostForm("stock_code")
@@ -92,24 +114,31 @@ func (c *ProductController) DeleteProduct(g *gin.Context) {
 	err1 := c.productService.deleteProduct(stockCode)
 
 	if err1 != nil {
-		g.JSON(http.StatusBadRequest, gin.H{
-			"error_message": err1.Error(),
+		log.Println(err1.Error())
+		g.JSON(http.StatusBadRequest, shared.ApiErrorResponse{
+			IsSuccess:    false,
+			ErrorMessage: err1.Error(),
 		})
 		g.Abort()
 		return
 	}
 
-	g.JSON(http.StatusOK, "sucsesfully deleted")
+	g.JSON(http.StatusNoContent, shared.ApiOkResponse{
+		IsSuccess: true,
+		Message:   "deleted",
+	})
 }
 
+//UpdateProduct updates product in DB
 func (c *ProductController) UpdateProduct(g *gin.Context) {
 	var requestModel types.AddProductRequest
 
 	//check request body is correct form
 	if err := g.ShouldBind(&requestModel); err != nil {
 		log.Println(err.Error())
-		g.JSON(http.StatusBadRequest, gin.H{
-			"error_message": shared.GeneralErrorRequestBodyNotCorrect,
+		g.JSON(http.StatusBadRequest, shared.ApiErrorResponse{
+			IsSuccess:    false,
+			ErrorMessage: shared.GeneralErrorRequestBodyNotCorrect.Error(),
 		})
 		g.Abort()
 		return
@@ -119,13 +148,18 @@ func (c *ProductController) UpdateProduct(g *gin.Context) {
 
 	if err != nil {
 		log.Println(err.Error())
-		g.JSON(http.StatusBadRequest, gin.H{
-			"error_message": err.Error(),
+		g.JSON(http.StatusBadRequest, shared.ApiErrorResponse{
+			IsSuccess:    false,
+			ErrorMessage: err.Error(),
 		})
 		g.Abort()
 		return
 	}
 
 	log.Println("Product StockCode: " + requestModel.StockCode + "updated")
-	g.JSON(http.StatusOK, "updated")
+	g.JSON(http.StatusOK, shared.ApiOkResponse{
+		IsSuccess: true,
+		Message:   "updated",
+		Data:      requestModel,
+	})
 }

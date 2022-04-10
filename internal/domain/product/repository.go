@@ -61,18 +61,6 @@ func (r *ProductRepository) Create(p *Product) error {
 	return nil
 }
 
-func (r *ProductRepository) FindByID(id int) (Product, error) {
-	var product Product
-
-	result := r.db.Where("id = ?", id).First(&product)
-
-	if result.Error != nil {
-		return Product{}, result.Error
-	}
-
-	return product, nil
-}
-
 func (r *ProductRepository) DeleteById(id uint) error {
 	result := r.db.Delete(&Product{}, id)
 
