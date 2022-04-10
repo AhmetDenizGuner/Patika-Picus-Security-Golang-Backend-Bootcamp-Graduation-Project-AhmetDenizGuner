@@ -3,6 +3,11 @@
 ## Pre-Requirments
 - MySQL: databaseName: picus_shop
 - Redis: AddrURI: "localhost:6379"
+```console
+foo@bar:$ docker pull redis
+foo@bar:$ docker run --name redis-test-instance -p 6379:6379 -d redis
+foo
+```
 
 
 ### ENVIRONMENT VARIABLES ###
