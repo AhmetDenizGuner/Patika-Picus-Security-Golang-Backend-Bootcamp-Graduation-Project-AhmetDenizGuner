@@ -3,9 +3,7 @@ package product
 import (
 	"errors"
 	"github.com/AhmetDenizGuner/Patika-Picus-Security-Golang-Backend-Bootcamp-Graduation-Project-AhmetDenizGuner/internal/api/types"
-	"github.com/AhmetDenizGuner/Patika-Picus-Security-Golang-Backend-Bootcamp-Graduation-Project-AhmetDenizGuner/internal/domain/cart/cart_item"
 	"github.com/AhmetDenizGuner/Patika-Picus-Security-Golang-Backend-Bootcamp-Graduation-Project-AhmetDenizGuner/internal/domain/category"
-	"github.com/AhmetDenizGuner/Patika-Picus-Security-Golang-Backend-Bootcamp-Graduation-Project-AhmetDenizGuner/internal/domain/order/order_item"
 	"github.com/AhmetDenizGuner/Patika-Picus-Security-Golang-Backend-Bootcamp-Graduation-Project-AhmetDenizGuner/pkg/csv"
 	"github.com/AhmetDenizGuner/Patika-Picus-Security-Golang-Backend-Bootcamp-Graduation-Project-AhmetDenizGuner/pkg/pagination"
 	"gorm.io/gorm"
@@ -156,44 +154,22 @@ func (service *ProductService) FetchBySKU(sku string) (Product, error) {
 
 }
 
-func (service *ProductService) UpdateProductQuantityForOrder(itemList []cart_item.CartItem) error {
+func (service *ProductService) UpdateProductQuantityForOrder(itemList []Product, amount []int) error {
 
-	for _, item := range itemList {
-		product, err := service.repository.FindByStockCode(item.Product.StockCode)
+	for index, item := range itemList {
+		product, err := service.repository.FindByStockCode(item.StockCode)
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return err
 		}
-		err1 := product.UpdateQuantity(item.Quantity * -1)
+		err1 := product.UpdateQuantity(amount[index])
 		if err1 != nil {
 			return err1
 		}
 	}
 
-	for _, item := range itemList {
-		product, _ := service.repository.FindByStockCode(item.Product.StockCode)
-		product.UpdateQuantity(item.Quantity * -1)
-		service.repository.Update(product)
-	}
-
-	return nil
-}
-
-func (service *ProductService) UpdateProductQuantityForCancelOrder(itemList []order_item.OrderItem) error {
-
-	for _, item := range itemList {
-		product, err := service.repository.FindByStockCode(item.Product.StockCode)
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return err
-		}
-		err1 := product.UpdateQuantity(item.Quantity)
-		if err1 != nil {
-			return err1
-		}
-	}
-
-	for _, item := range itemList {
-		product, _ := service.repository.FindByStockCode(item.Product.StockCode)
-		product.UpdateQuantity(item.Quantity)
+	for index, item := range itemList {
+		product, _ := service.repository.FindByStockCode(item.StockCode)
+		product.UpdateQuantity(amount[index])
 		service.repository.Update(product)
 	}
 

@@ -34,8 +34,15 @@ func (service *OrderService) CompleteOrderWithUserId(userId int) error {
 	if len(cart.Items) < 1 {
 		return ErrOrderBasketEmpty
 	}
+	//prepare update product input service
+	var productList []product.Product = []product.Product{}
+	var orderAmountList []int = []int{}
+	for _, item := range cart.Items {
+		productList = append(productList, item.Product)
+		orderAmountList = append(orderAmountList, item.Quantity)
+	}
 	//update products quantity which are in basket
-	errUpdQuant := service.productService.UpdateProductQuantityForOrder(cart.Items)
+	errUpdQuant := service.productService.UpdateProductQuantityForOrder(productList, orderAmountList)
 	if errUpdQuant != nil {
 		return errUpdQuant
 	}
@@ -98,9 +105,15 @@ func (service *OrderService) cancelOrder(userId int, deleteID string) error {
 	if err2 != nil {
 		return err2
 	}
-
+	//prepare update product input service
+	var productList []product.Product = []product.Product{}
+	var orderAmountList []int = []int{}
+	for _, item := range order.Items {
+		productList = append(productList, item.Product)
+		orderAmountList = append(orderAmountList, item.Quantity)
+	}
 	//update products quantity which are in canceled order
-	errUpdQuant := service.productService.UpdateProductQuantityForCancelOrder(order.Items)
+	errUpdQuant := service.productService.UpdateProductQuantityForOrder(productList, orderAmountList)
 	if errUpdQuant != nil {
 		return errUpdQuant
 	}

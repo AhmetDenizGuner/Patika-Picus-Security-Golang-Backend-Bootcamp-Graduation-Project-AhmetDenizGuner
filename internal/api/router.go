@@ -24,7 +24,7 @@ func RegisterHandlers(r *gin.Engine) {
 
 	os.Setenv("ENV", "local")
 
-	cfgFile := "app." + os.Getenv("ENV") + ".yaml"
+	cfgFile := "../config/app." + os.Getenv("ENV") + ".yaml"
 	AppConfig, err := config.GetAllConfigValues(cfgFile)
 	if err != nil {
 		log.Fatalf("Failed to read config file. %v", err.Error())
