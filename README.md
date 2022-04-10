@@ -11,6 +11,7 @@
 
 ## Notes
 - You can get the sample request using by swagger [docs.](cmd/app/docs)
+- For Add Bulk Category feature, there is example folder in [here.](resources/uploaded) First column name, second column is category id.
 
 # Gin Picus-Shop API
 This service provides basic e-commerce API.
