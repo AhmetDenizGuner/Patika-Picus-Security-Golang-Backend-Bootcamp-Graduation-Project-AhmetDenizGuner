@@ -4,6 +4,7 @@ import (
 	"github.com/AhmetDenizGuner/Patika-Picus-Security-Golang-Backend-Bootcamp-Graduation-Project-AhmetDenizGuner/internal/domain/cart"
 	"github.com/AhmetDenizGuner/Patika-Picus-Security-Golang-Backend-Bootcamp-Graduation-Project-AhmetDenizGuner/internal/domain/order/order_item"
 	"gorm.io/gorm"
+	"time"
 )
 
 type Order struct {
@@ -28,4 +29,13 @@ func NewOrder(cart cart.Cart) *Order {
 
 	return order
 
+}
+
+func (o *Order) isCancelable() bool {
+	orderDate := o.CreatedAt
+	now := time.Now()
+	if now.Sub(orderDate) < time.Hour*24*14 {
+		return true
+	}
+	return false
 }

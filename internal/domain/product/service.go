@@ -5,6 +5,7 @@ import (
 	"github.com/AhmetDenizGuner/Patika-Picus-Security-Golang-Backend-Bootcamp-Graduation-Project-AhmetDenizGuner/internal/api/types"
 	"github.com/AhmetDenizGuner/Patika-Picus-Security-Golang-Backend-Bootcamp-Graduation-Project-AhmetDenizGuner/internal/domain/cart/cart_item"
 	"github.com/AhmetDenizGuner/Patika-Picus-Security-Golang-Backend-Bootcamp-Graduation-Project-AhmetDenizGuner/internal/domain/category"
+	"github.com/AhmetDenizGuner/Patika-Picus-Security-Golang-Backend-Bootcamp-Graduation-Project-AhmetDenizGuner/internal/domain/order/order_item"
 	"github.com/AhmetDenizGuner/Patika-Picus-Security-Golang-Backend-Bootcamp-Graduation-Project-AhmetDenizGuner/pkg/csv"
 	"github.com/AhmetDenizGuner/Patika-Picus-Security-Golang-Backend-Bootcamp-Graduation-Project-AhmetDenizGuner/pkg/pagination"
 	"gorm.io/gorm"
@@ -162,12 +163,34 @@ func (service *ProductService) UpdateProductQuantityForOrder(itemList []cart_ite
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return err
 		}
+		err1 := product.UpdateQuantity(item.Quantity * -1)
+		if err1 != nil {
+			return err1
+		}
+	}
+
+	for _, item := range itemList {
+		product, _ := service.repository.FindByStockCode(item.Product.StockCode)
+		product.UpdateQuantity(item.Quantity * -1)
+		service.repository.Update(product)
+	}
+
+	return nil
+}
+
+func (service *ProductService) UpdateProductQuantityForCancelOrder(itemList []order_item.OrderItem) error {
+
+	for _, item := range itemList {
+		product, err := service.repository.FindByStockCode(item.Product.StockCode)
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return err
+		}
 		err1 := product.UpdateQuantity(item.Quantity)
 		if err1 != nil {
 			return err1
 		}
 	}
-	
+
 	for _, item := range itemList {
 		product, _ := service.repository.FindByStockCode(item.Product.StockCode)
 		product.UpdateQuantity(item.Quantity)

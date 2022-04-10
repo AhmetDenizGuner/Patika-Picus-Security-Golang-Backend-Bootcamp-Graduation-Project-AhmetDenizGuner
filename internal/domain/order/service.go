@@ -1,7 +1,6 @@
 package order
 
 import (
-	"errors"
 	"github.com/AhmetDenizGuner/Patika-Picus-Security-Golang-Backend-Bootcamp-Graduation-Project-AhmetDenizGuner/internal/domain/cart"
 	"github.com/AhmetDenizGuner/Patika-Picus-Security-Golang-Backend-Bootcamp-Graduation-Project-AhmetDenizGuner/internal/domain/order/order_item"
 	"github.com/AhmetDenizGuner/Patika-Picus-Security-Golang-Backend-Bootcamp-Graduation-Project-AhmetDenizGuner/internal/domain/product"
@@ -73,29 +72,39 @@ func (service *OrderService) listOrders(userId int) ([]OrderModel, error) {
 }
 
 func (service *OrderService) cancelOrder(userId int, deleteID string) error {
-
+	//check parameter is ok
 	deleteIDInt, err := strconv.Atoi(deleteID)
-
 	if err != nil {
 		return err
 	}
-
+	//find order
 	order, err1 := service.repository.FindByID(deleteIDInt)
 
 	if err1 != nil {
 		return err1
 	}
 
-	if int(order.UserID) != userId {
-		return errors.New("Credintials are not matched!")
+	//check cancel day
+	if !order.isCancelable() {
+		return ErrOrderCannotBeCanceled
 	}
-
+	//extra validation for order belongs to user --> it will be unnecesary
+	if int(order.UserID) != userId {
+		return ErrUserNotAuth
+	}
+	//cancel order
 	err2 := service.repository.DeleteById(order.ID)
 
 	if err2 != nil {
 		return err2
 	}
 
+	//update products quantity which are in canceled order
+	errUpdQuant := service.productService.UpdateProductQuantityForCancelOrder(order.Items)
+	if errUpdQuant != nil {
+		return errUpdQuant
+	}
+	//delete order items
 	for _, item := range order.Items {
 		service.orderItemRepository.DeleteById(item.ID)
 	}
