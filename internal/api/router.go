@@ -22,7 +22,7 @@ var AppConfig = &config.Configuration{}
 
 func RegisterHandlers(r *gin.Engine) {
 
-	os.Setenv("ENV", "local")
+	//os.Setenv("ENV", "local")
 
 	cfgFile := "../../config/app." + os.Getenv("ENV") + ".yaml"
 	AppConfig, err := config.GetAllConfigValues(cfgFile)

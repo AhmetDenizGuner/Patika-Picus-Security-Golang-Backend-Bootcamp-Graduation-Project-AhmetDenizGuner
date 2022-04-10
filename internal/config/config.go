@@ -14,7 +14,6 @@ var cfgReader *configReader
 type (
 	Configuration struct {
 		DatabaseSettings
-		//NewRelicSettings
 		JwtSettings
 		RedisSettings
 	}
@@ -25,10 +24,7 @@ type (
 		Username     string
 		Password     string
 	}
-	/*NewRelicSettings struct {
-		LicenseKey string
-		AppName    string
-	}*/
+
 	JwtSettings struct {
 		SecretKey string
 	}

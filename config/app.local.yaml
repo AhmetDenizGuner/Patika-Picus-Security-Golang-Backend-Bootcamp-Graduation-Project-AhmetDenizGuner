@@ -1,4 +1,4 @@
-Env: "local"
+dataEnv: "local"
 
 DatabaseSettings:
   DatabaseURI: "root:root@tcp(127.0.0.1:3306)/picus_shop?parseTime=true"
@@ -12,9 +12,3 @@ JwtSettings:
 RedisSettings:
   AddrURI: "localhost:6379"
 
-
-#Env: "prod"
-
-  #NewRelicSettings:
-  #LicenseKey: "YOUR_LICENSE_KEY"
-  #AppName: "YOUR_PROD_APP_NAME"

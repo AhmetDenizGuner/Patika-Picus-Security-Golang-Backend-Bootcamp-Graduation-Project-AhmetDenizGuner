@@ -1,17 +1,3 @@
-# Patika-Picus-Security-Golang-Backend-Bootcamp-Graduation-Project-AhmetDenizGuner
-
-## Pre-Requirments
-- MySQL: databaseName: picus_shop
-- Redis: AddrURI: "localhost:6379"
-
-
-### ENVIRONMENT VARIABLES ###
-- "ENV" = "local" --> to this auto, you can uncomment line25 in [router.go](internal/api/router.go)
-- You can create own configuration and enviroment varible based on app.local.yaml[here](config/app.local.yaml)
-
-## Notes
-- You can get the sample request using by swagger [docs.](cmd/app/docs)
-
 # Gin Picus-Shop API
 This service provides basic e-commerce API.
 
@@ -19,7 +5,7 @@ This service provides basic e-commerce API.
 
 **Contact information:**  
 Ahmet Deniz Guner  
-ahmetdenizguner@gmail.com
+ahmetdenizguner@gmail.com  
 
 **License:** [Apache 2.0](http://www.apache.org/licenses/LICENSE-2.0.html)
 
@@ -34,16 +20,16 @@ This endpoint used for login
 
 | Name | Located in | Description | Required | Schema |
 | ---- | ---------- | ----------- | -------- | ---- |
-| signinRequest | body | signin information | Yes | [user.SigninRequest](internal/api/types/types.go) |
+| signinRequest | body | signin information | Yes | [user.SigninRequest](#usersigninrequest) |
 
 ##### Responses
 
 | Code | Description | Schema |
 | ---- | ----------- | ------ |
 | 200 |  |  |
-| 400 | Bad Request | [user.ApiErrorResponse](shared/types.go) |
-| 404 | Not Found | [user.ApiErrorResponse](shared/types.go) |
-| 507 | Insufficient Storage | [user.ApiErrorResponse](shared/types.go) |
+| 400 | Bad Request | [user.ApiErrorResponse](#userapierrorresponse) |
+| 404 | Not Found | [user.ApiErrorResponse](#userapierrorresponse) |
+| 507 | Insufficient Storage | [user.ApiErrorResponse](#userapierrorresponse) |
 
 ### /auth/logout
 
@@ -56,7 +42,7 @@ This endpoint used for logout
 
 | Name | Located in | Description | Required | Schema |
 | ---- | ---------- | ----------- | -------- | ---- |
-| signoutRequest | body | signout information | Yes | [user.SignoutRequest](internal/api/types/types.go) |
+| signoutRequest | body | signout information | Yes | [user.SignoutRequest](#usersignoutrequest) |
 | Authorization | header | Authorization | Yes | string |
 
 ##### Responses
@@ -64,7 +50,7 @@ This endpoint used for logout
 | Code | Description | Schema |
 | ---- | ----------- | ------ |
 | 200 |  |  |
-| 400 | Bad Request | [user.ApiErrorResponse](shared/types.go) |
+| 400 | Bad Request | [user.ApiErrorResponse](#userapierrorresponse) |
 
 ##### Security
 
@@ -83,14 +69,14 @@ This endpoint used for register
 
 | Name | Located in | Description | Required | Schema |
 | ---- | ---------- | ----------- | -------- | ---- |
-| signupRequest | body | signup information | Yes | [user.SignupRequest](internal/api/types/types.go) |
+| signupRequest | body | signup information | Yes | [user.SignupRequest](#usersignuprequest) |
 
 ##### Responses
 
 | Code | Description | Schema |
 | ---- | ----------- | ------ |
 | 201 |  |  |
-| 400 | Bad Request | [user.ApiErrorResponse](shared/types.go) |
+| 400 | Bad Request | [user.ApiErrorResponse](#userapierrorresponse) |
 
 ### /cart/add-item
 
@@ -189,7 +175,7 @@ This endpoint used for uploading csv and creating categories from this csv file
 | Code | Description | Schema |
 | ---- | ----------- | ------ |
 | 201 |  |  |
-| 415 | Unsupported Media Type | [category.ApiErrorResponse](shared/types.go) |
+| 415 | Unsupported Media Type | [category.ApiErrorResponse](#categoryapierrorresponse) |
 
 ##### Security
 
@@ -216,7 +202,7 @@ This endpoint used for getting category list with pagination
 | Code | Description | Schema |
 | ---- | ----------- | ------ |
 | 200 |  |  |
-| 507 | Insufficient Storage | [category.ApiErrorResponse](shared/types.go) |
+| 507 | Insufficient Storage | [category.ApiErrorResponse](#categoryapierrorresponse) |
 
 ### /order/cancel
 
@@ -305,7 +291,7 @@ This endpoint used for creating new product
 
 | Name | Located in | Description | Required | Schema |
 | ---- | ---------- | ----------- | -------- | ---- |
-| requestModel | body | it is a new product model | Yes | [product.AddProductRequest](internal/api/types/types.go) |
+| requestModel | body | it is a new product model | Yes | [product.AddProductRequest](#productaddproductrequest) |
 | Authorization | header | Authorization | Yes | string |
 
 ##### Responses
@@ -398,7 +384,7 @@ This endpoint used for updates product in DB
 
 | Name | Located in | Description | Required | Schema |
 | ---- | ---------- | ----------- | -------- | ---- |
-| requestModel | body | it is an updated product model | Yes | [product.AddProductRequest](internal/api/types/types.go) |
+| requestModel | body | it is an updated product model | Yes | [product.AddProductRequest](#productaddproductrequest) |
 | Authorization | header | Authorization | Yes | string |
 
 ##### Responses
