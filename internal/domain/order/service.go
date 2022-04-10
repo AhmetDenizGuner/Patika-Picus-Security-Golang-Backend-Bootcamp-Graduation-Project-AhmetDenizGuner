@@ -24,6 +24,7 @@ func NewOrderService(r OrderRepository, cartService *cart.CartService, orderItem
 	}
 }
 
+//CompleteOrderWithUserId crates order from items that is in basket and clear the basket
 func (service *OrderService) CompleteOrderWithUserId(userId int) error {
 	//get user cart
 	cart, err := service.cartService.FetchCartByUserId(userId)
@@ -61,6 +62,7 @@ func (service *OrderService) CompleteOrderWithUserId(userId int) error {
 	return nil
 }
 
+//listOrders gets the orders except canceled orders
 func (service *OrderService) listOrders(userId int) ([]OrderModel, error) {
 
 	orders, err := service.repository.FindAllByUser(userId)
@@ -78,6 +80,7 @@ func (service *OrderService) listOrders(userId int) ([]OrderModel, error) {
 	return orderModels, nil
 }
 
+//cancelOrder cancel order if it is not too old
 func (service *OrderService) cancelOrder(userId int, deleteID string) error {
 	//check parameter is ok
 	deleteIDInt, err := strconv.Atoi(deleteID)

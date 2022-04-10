@@ -19,7 +19,5 @@ func NewOrderItem(cartItem cart_item.CartItem) *OrderItem {
 		ProductId: cartItem.ProductId,
 		Quantity:  cartItem.Quantity,
 	}
-	//TODO orderid gerekebilir
-
 	return item
 }
