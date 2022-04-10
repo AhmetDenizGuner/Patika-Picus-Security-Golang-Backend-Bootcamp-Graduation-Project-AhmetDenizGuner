@@ -1,10 +1,8 @@
 package cart
 
 import (
-	"fmt"
 	"github.com/AhmetDenizGuner/Patika-Picus-Security-Golang-Backend-Bootcamp-Graduation-Project-AhmetDenizGuner/internal/domain/cart/cart_item"
 	"github.com/AhmetDenizGuner/Patika-Picus-Security-Golang-Backend-Bootcamp-Graduation-Project-AhmetDenizGuner/internal/domain/product"
-	"log"
 	"strconv"
 )
 
@@ -23,6 +21,7 @@ func NewCartService(r CartRepository, productService product.ProductService, car
 	}
 }
 
+//addItem adds to new item to cart
 func (service *CartService) addItem(stockCode string, userID int) error {
 
 	cart, err := service.repository.FindByUserId(userID)
@@ -32,16 +31,10 @@ func (service *CartService) addItem(stockCode string, userID int) error {
 	}
 
 	product, err1 := service.productService.FetchBySKU(stockCode)
-	fmt.Println("-----------------product---------------")
-	fmt.Println(product)
 
 	if err1 != nil {
-		log.Println("Product: " + err1.Error())
 		return err1
 	}
-
-	fmt.Println("-------- SERVICE")
-	fmt.Println(cart.Items)
 
 	_, err2 := cart.AddItem(product)
 
@@ -55,23 +48,19 @@ func (service *CartService) addItem(stockCode string, userID int) error {
 		return err3
 	}
 
-	//TODO - check items created at DB
-
 	return nil
-
 }
 
 //updateCartItem update quantity of cart item or delete cart item according to parameters
 func (service *CartService) updateCartItem(stockCode, stockQuantity string, userID int) error {
 
+	//get user cart
 	cart, err := service.repository.FindByUserId(userID)
 
 	if err != nil {
 		return err
 	}
-	fmt.Println("CART")
-	fmt.Println(cart)
-
+	//check is integer
 	stockQuantityInt, err4 := strconv.Atoi(stockQuantity)
 
 	if err4 != nil {
@@ -84,7 +73,7 @@ func (service *CartService) updateCartItem(stockCode, stockQuantity string, user
 		return err1
 	}
 
-	if stockQuantityInt >= 0 { //DELETE
+	if stockQuantityInt >= 0 {
 		err2 := cart.UpdateItem(int(product.ID), stockQuantityInt)
 		if err2 != nil {
 			return err2
@@ -92,13 +81,13 @@ func (service *CartService) updateCartItem(stockCode, stockQuantity string, user
 	} else {
 		return ErrCartItemQuantityNegative
 	}
-
+	//update general cart info
 	err3 := service.repository.Update(&cart)
 
 	if err3 != nil {
 		return err3
 	}
-
+	//update or delete item
 	for _, item := range cart.Items {
 		if item.Quantity == 0 {
 			service.cartItemRepository.DeleteById(item.ID)
@@ -109,6 +98,8 @@ func (service *CartService) updateCartItem(stockCode, stockQuantity string, user
 
 	return nil
 }
+
+//fetchCartModelByUserID it returns cart model for show
 func (service *CartService) fetchCartModelByUserID(userID int) (CartModel, error) {
 
 	cart, err := service.repository.FindByUserId(userID)
@@ -122,6 +113,7 @@ func (service *CartService) fetchCartModelByUserID(userID int) (CartModel, error
 	return *cartModel, nil
 }
 
+//FetchCartByUserId it returns cart model for complete
 func (service *CartService) FetchCartByUserId(UserID int) (Cart, error) {
 	cart, err := service.repository.FindByUserId(UserID)
 

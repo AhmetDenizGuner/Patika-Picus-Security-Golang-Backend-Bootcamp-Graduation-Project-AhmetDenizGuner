@@ -15,18 +15,6 @@ func NewCartRepository(db *gorm.DB) *CartRepository {
 	}
 }
 
-func (r *CartRepository) FindByID(id int) (Cart, error) {
-	var cart Cart
-
-	result := r.db.Preload("Items").Where("id = ?", id).First(&cart)
-
-	if result.Error != nil {
-		return Cart{}, result.Error
-	}
-
-	return cart, nil
-}
-
 func (r *CartRepository) FindByUserId(userId int) (Cart, error) {
 	var cart Cart
 
