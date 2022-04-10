@@ -1,4 +1,55 @@
 basePath: /
+definitions:
+  category.ApiErrorResponse:
+    properties:
+      error_message:
+        type: string
+      is_success:
+        type: boolean
+    type: object
+  product.AddProductRequest:
+    properties:
+      category_id:
+        type: integer
+      description:
+        type: string
+      name:
+        type: string
+      price:
+        type: number
+      stock_code:
+        type: string
+      stock_quantity:
+        type: integer
+    type: object
+  user.ApiErrorResponse:
+    properties:
+      error_message:
+        type: string
+      is_success:
+        type: boolean
+    type: object
+  user.SigninRequest:
+    properties:
+      email:
+        type: string
+      password:
+        type: string
+    type: object
+  user.SignoutRequest:
+    properties:
+      email:
+        type: string
+    type: object
+  user.SignupRequest:
+    properties:
+      email:
+        type: string
+      name:
+        type: string
+      password:
+        type: string
+    type: object
 host: localhost:8080
 info:
   contact:
@@ -10,7 +61,384 @@ info:
     url: http://www.apache.org/licenses/LICENSE-2.0.html
   title: Gin Picus-Shop API
   version: "1.0"
-paths: {}
+paths:
+  /auth/login:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: signin information
+        in: body
+        name: signinRequest
+        required: true
+        schema:
+          $ref: '#/definitions/user.SigninRequest'
+      responses:
+        "200":
+          description: ""
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/user.ApiErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/user.ApiErrorResponse'
+        "507":
+          description: Insufficient Storage
+          schema:
+            $ref: '#/definitions/user.ApiErrorResponse'
+      summary: This endpoint used for login
+      tags:
+      - Auth
+  /auth/logout:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: signout information
+        in: body
+        name: signoutRequest
+        required: true
+        schema:
+          $ref: '#/definitions/user.SignoutRequest'
+      - description: Authorization
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      responses:
+        "200":
+          description: ""
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/user.ApiErrorResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: This endpoint used for logout
+      tags:
+      - Auth
+  /auth/signup:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: signup information
+        in: body
+        name: signupRequest
+        required: true
+        schema:
+          $ref: '#/definitions/user.SignupRequest'
+      responses:
+        "201":
+          description: ""
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/user.ApiErrorResponse'
+      summary: This endpoint used for register
+      tags:
+      - Auth
+  /cart/add-item:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: stock code of adding element
+        in: formData
+        name: stock_code
+        required: true
+        type: string
+      - description: Authorization
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      responses:
+        "201":
+          description: ""
+      security:
+      - ApiKeyAuth: []
+      summary: This endpoint used for adding new element to user cart
+      tags:
+      - Cart
+  /cart/list:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: Authorization
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      responses:
+        "200":
+          description: ""
+      security:
+      - ApiKeyAuth: []
+      summary: This endpoint used for see current cart
+      tags:
+      - Cart
+  /cart/update-delete-item:
+    put:
+      consumes:
+      - application/json
+      parameters:
+      - description: stock code of update element
+        in: formData
+        name: stock_code
+        required: true
+        type: string
+      - description: new cart quantity of element
+        in: formData
+        name: update_quantity
+        required: true
+        type: integer
+      - description: Authorization
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      responses:
+        "204":
+          description: ""
+      security:
+      - ApiKeyAuth: []
+      summary: This endpoint used for deleting or update the item that is in cart
+        already
+      tags:
+      - Cart
+  /category/add-all:
+    post:
+      consumes:
+      - application/json
+      operationId: category-add-csv
+      parameters:
+      - description: form data CSV
+        in: formData
+        name: file
+        required: true
+        type: file
+      - description: Authorization
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: ""
+        "415":
+          description: Unsupported Media Type
+          schema:
+            $ref: '#/definitions/category.ApiErrorResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: This endpoint used for uploading csv and creating categories from this
+        csv file
+      tags:
+      - Category
+  /category/list:
+    get:
+      consumes:
+      - application/json
+      operationId: category-list
+      parameters:
+      - description: Page Index
+        in: query
+        name: page
+        type: integer
+      - description: Page Size
+        in: query
+        name: pageSize
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ""
+        "507":
+          description: Insufficient Storage
+          schema:
+            $ref: '#/definitions/category.ApiErrorResponse'
+      summary: This endpoint used for getting category list with pagination
+      tags:
+      - Category
+  /order/cancel:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: id belongs order will be canceled
+        in: formData
+        name: order_delete_id
+        required: true
+        type: integer
+      - description: Authorization
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      responses:
+        "201":
+          description: ""
+      security:
+      - ApiKeyAuth: []
+      summary: This endpoint used for creating order with products in basket
+      tags:
+      - Order
+  /order/complete:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Authorization
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      responses:
+        "201":
+          description: ""
+      security:
+      - ApiKeyAuth: []
+      summary: This endpoint used for creating order with products in basket
+      tags:
+      - Order
+  /order/list:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: Authorization
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      responses:
+        "201":
+          description: ""
+      security:
+      - ApiKeyAuth: []
+      summary: This endpoint used for see the active orders
+      tags:
+      - Order
+  /product/add:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: it is a new product model
+        in: body
+        name: requestModel
+        required: true
+        schema:
+          $ref: '#/definitions/product.AddProductRequest'
+      - description: Authorization
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      responses:
+        "201":
+          description: ""
+      security:
+      - ApiKeyAuth: []
+      summary: This endpoint used for creating new product
+      tags:
+      - Product
+  /product/delete:
+    delete:
+      consumes:
+      - application/json
+      parameters:
+      - description: stock code belongs product will be deleted
+        in: formData
+        name: stock_code
+        required: true
+        type: string
+      - description: Authorization
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      responses:
+        "204":
+          description: ""
+      security:
+      - ApiKeyAuth: []
+      summary: This endpoint used for remove the product fromDB
+      tags:
+      - Product
+  /product/list:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: Page Index
+        in: query
+        name: page
+        type: integer
+      - description: Page Size
+        in: query
+        name: pageSize
+        type: integer
+      responses:
+        "200":
+          description: ""
+      summary: This endpoint used for getting product list with pagination
+      tags:
+      - Product
+  /product/search{searchKeyword}:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Page Index
+        in: query
+        name: page
+        type: integer
+      - description: Page Size
+        in: query
+        name: pageSize
+        type: integer
+      - description: word will be searched
+        in: query
+        name: searchKeyword
+        type: string
+      responses:
+        "200":
+          description: ""
+      summary: This endpoint used for searching product with pagination
+      tags:
+      - Product
+  /product/update:
+    put:
+      consumes:
+      - application/json
+      parameters:
+      - description: it is an updated product model
+        in: body
+        name: requestModel
+        required: true
+        schema:
+          $ref: '#/definitions/product.AddProductRequest'
+      - description: Authorization
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      responses:
+        "204":
+          description: ""
+      security:
+      - ApiKeyAuth: []
+      summary: This endpoint used for updates product in DB
+      tags:
+      - Product
 schemes:
 - http
 swagger: "2.0"
