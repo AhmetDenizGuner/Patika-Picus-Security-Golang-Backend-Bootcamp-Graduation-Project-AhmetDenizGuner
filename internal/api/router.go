@@ -51,7 +51,7 @@ func RegisterHandlers(r *gin.Engine) {
 	orderItemRepository := order_item.NewOrderItemRepository(db)
 
 	orderRepository := order.NewOrderRepository(db)
-	orderService := order.NewOrderService(*orderRepository, cartService, *orderItemRepository)
+	orderService := order.NewOrderService(*orderRepository, cartService, *orderItemRepository, productService)
 	orderController := order.NewOrderController(orderService, AppConfig)
 
 	roleRepository := role.NewRoleRepository(db)

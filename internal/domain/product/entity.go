@@ -37,3 +37,19 @@ func (p *Product) Update(name, stockCode string, stockQuantity int, price float6
 	p.Description = description
 	p.CategoryID = categoryId
 }
+
+func (p *Product) UpdateQuantity(changeAmount int) error {
+	err := p.CheckStockExist(changeAmount)
+	if err != nil {
+		return err
+	}
+	p.StockQuantity += changeAmount
+	return nil
+}
+
+func (p *Product) CheckStockExist(changeAmount int) error {
+	if p.StockQuantity+changeAmount < 0 {
+		return ErrProductStockIsNotEnough
+	}
+	return nil
+}
