@@ -30,14 +30,18 @@ func NewUserController(service *UserService, appConfig *config.Configuration, re
 	}
 }
 
+//SignUp crates new user with unique email
 func (c *UserController) SignUp(g *gin.Context) {
 	var requestModel types.SignupRequest
 
 	//check request body is correct form
 	if err := g.ShouldBind(&requestModel); err != nil {
-		g.JSON(http.StatusBadRequest, gin.H{
-			"error_message": shared.GeneralErrorRequestBodyNotCorrect.Error(),
+		log.Println(err.Error())
+		g.JSON(http.StatusBadRequest, shared.ApiErrorResponse{
+			IsSuccess:    false,
+			ErrorMessage: shared.GeneralErrorRequestBodyNotCorrect.Error(),
 		})
+		g.Abort()
 		return
 	}
 
@@ -45,24 +49,33 @@ func (c *UserController) SignUp(g *gin.Context) {
 	err2 := c.userService.SignupService(requestModel)
 
 	if err2 != nil {
-		g.JSON(http.StatusBadRequest, gin.H{
-			"error_message": "Check your form of inputs. Error: " + err2.Error(),
+		log.Println(err2.Error())
+		g.JSON(http.StatusBadRequest, shared.ApiErrorResponse{
+			IsSuccess:    true,
+			ErrorMessage: ErrUserCheckFormInputs.Error() + " " + err2.Error(),
 		})
+		g.Abort()
 		return
 	}
 
-	g.JSON(http.StatusCreated, requestModel)
-
+	log.Println(fmt.Sprintf("%s registered"), requestModel.Email)
+	g.JSON(http.StatusCreated, shared.ApiOkResponse{
+		IsSuccess: true,
+		Message:   "Register completed, please login",
+		Data:      requestModel.Email},
+	)
 }
 
+//SignIn generate token for user
 func (c *UserController) SignIn(g *gin.Context) {
 	var requestModel types.SigninRequest
 
 	//check request body is correct form
 	if err := g.ShouldBindJSON(&requestModel); err != nil {
 		fmt.Println(err)
-		g.JSON(http.StatusBadRequest, gin.H{
-			"error_message": shared.GeneralErrorRequestBodyNotCorrect.Error(),
+		g.JSON(http.StatusBadRequest, shared.ApiErrorResponse{
+			IsSuccess:    false,
+			ErrorMessage: shared.GeneralErrorRequestBodyNotCorrect.Error(),
 		})
 		g.Abort()
 		return
@@ -73,12 +86,12 @@ func (c *UserController) SignIn(g *gin.Context) {
 
 	//check user is exist
 	if err2 != nil {
-		g.JSON(http.StatusNotFound, gin.H{
-			"error_message": "User not found or password is not correct!",
+		g.JSON(http.StatusNotFound, shared.ApiErrorResponse{
+			IsSuccess:    false,
+			ErrorMessage: ErrUserCredentialsNotCorrect.Error(),
 		})
 		g.Abort()
 		return
-
 	}
 
 	//generate jwt token
@@ -96,33 +109,37 @@ func (c *UserController) SignIn(g *gin.Context) {
 	err3 := c.redisClient.SetKey(user.Email, token, time.Hour)
 
 	if err3 != nil {
-		log.Fatalln("Redis is unreachable!")
-		g.JSON(http.StatusBadGateway, gin.H{
-			"error_message": "Inmemory cache is unreachable!",
+		g.JSON(http.StatusInsufficientStorage, shared.ApiErrorResponse{
+			IsSuccess:    false,
+			ErrorMessage: shared.GeneralServerError.Error(),
 		})
 		g.Abort()
+		log.Fatalln("Redis is unreachable!: " + err3.Error())
 		return
 	}
 
 	//ok request
 	log.Println(fmt.Sprintf("User id: %d, email: %s is login", user.ID, user.Email))
-	//TODO
-	log.Println(token)
-	log.Println(jwtHelper.VerifyToken(token, c.appConfig.SecretKey))
-	log.Println(jwtHelper.VerifyToken(token, c.appConfig.SecretKey).Role.Name)
 
-	g.JSON(http.StatusOK, token)
+	ok := shared.ApiOkResponse{
+		IsSuccess: true,
+		Message:   "You are login.",
+		Data:      token}
+	g.JSON(http.StatusOK, ok)
 
 }
 
+//SignOut delete the logged-in user token in redis
 func (c *UserController) SignOut(g *gin.Context) {
 	var requestModel types.SignoutRequest
 
 	//check request body is correct form
 	if err := g.ShouldBind(&requestModel); err != nil {
-		g.JSON(http.StatusBadRequest, gin.H{
-			"error_message": shared.GeneralErrorRequestBodyNotCorrect,
+		g.JSON(http.StatusBadRequest, shared.ApiErrorResponse{
+			IsSuccess:    false,
+			ErrorMessage: shared.GeneralErrorRequestBodyNotCorrect.Error(),
 		})
+		g.Abort()
 		return
 	}
 
@@ -132,5 +149,20 @@ func (c *UserController) SignOut(g *gin.Context) {
 	decodedToken = *jwtHelper.VerifyToken(token, c.appConfig.JwtSettings.SecretKey)
 
 	//service call
-	c.userService.SignOutService(token, decodedToken.Email, *c.redisClient)
+	err1 := c.userService.SignOutService(token, decodedToken.Email, *c.redisClient)
+
+	if err1 != nil {
+		log.Println(err1.Error())
+		g.JSON(http.StatusBadRequest, shared.ApiErrorResponse{
+			IsSuccess:    false,
+			ErrorMessage: err1.Error(),
+		})
+		g.Abort()
+		return
+	}
+
+	ok := shared.ApiOkResponse{
+		IsSuccess: true,
+		Message:   "You are logout."}
+	g.JSON(http.StatusOK, ok)
 }

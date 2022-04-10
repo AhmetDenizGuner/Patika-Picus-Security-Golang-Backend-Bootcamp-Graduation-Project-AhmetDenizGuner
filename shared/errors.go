@@ -1,7 +1,7 @@
 package shared
 
-type ApiResponse struct {
-	IsSuccess bool        `json:"is_success"`
-	Message   string      `json:"message"`
-	Data      interface{} `json:"data"`
-}
+import "errors"
+
+var GeneralErrorRequestBodyNotCorrect = errors.New("Check your request body.")
+var GeneralErrorRequestParamsNotCorrect = errors.New("Check your params.")
+var GeneralServerError = errors.New("We are sorry, we can't process your request")

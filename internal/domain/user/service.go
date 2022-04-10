@@ -8,7 +8,6 @@ import (
 	"github.com/AhmetDenizGuner/Patika-Picus-Security-Golang-Backend-Bootcamp-Graduation-Project-AhmetDenizGuner/internal/domain/cart"
 	"github.com/AhmetDenizGuner/Patika-Picus-Security-Golang-Backend-Bootcamp-Graduation-Project-AhmetDenizGuner/internal/domain/role"
 	"github.com/AhmetDenizGuner/Patika-Picus-Security-Golang-Backend-Bootcamp-Graduation-Project-AhmetDenizGuner/pkg/redis"
-	"log"
 )
 
 type UserService struct {
@@ -70,7 +69,6 @@ func (service *UserService) SignInService(signinInfo types.SigninRequest) (User,
 	user, err := service.repository.FindByEmail(signinInfo.Email)
 
 	if err != nil {
-		log.Println(err)
 		return User{}, err
 	}
 
@@ -80,8 +78,7 @@ func (service *UserService) SignInService(signinInfo types.SigninRequest) (User,
 	strHash := fmt.Sprintf("%x", hash)
 
 	if strHash != user.PasswordHash {
-		log.Println("User password is not matched!")
-		return User{}, errors.New("")
+		return User{}, ErrUserCredentialsNotCorrect
 	}
 
 	return user, nil
@@ -111,6 +108,7 @@ func (service *UserService) SignOutService(token, email string, client redis.Red
 	return nil
 }
 
+//InsertSampleData create DB schema and insert initial  data
 func (service *UserService) InsertSampleData() {
 	tableExist := service.repository.db.Migrator().HasTable(&User{})
 
