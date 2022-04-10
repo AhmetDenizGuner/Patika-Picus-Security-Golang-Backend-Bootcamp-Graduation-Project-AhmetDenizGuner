@@ -1,0 +1,16 @@
+basePath: /
+host: localhost:8080
+info:
+  contact:
+    email: ahmetdenizguner@gmail.com
+    name: Ahmet Deniz Guner
+  description: This service provides basic e-commerce API.
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  title: Gin Picus-Shop API
+  version: "1.0"
+paths: {}
+schemes:
+- http
+swagger: "2.0"

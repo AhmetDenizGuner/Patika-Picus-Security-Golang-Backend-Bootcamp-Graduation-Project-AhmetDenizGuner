@@ -19,6 +19,15 @@ func NewProductController(service *ProductService) *ProductController {
 	}
 }
 
+//ListProducts godoc
+//@Summary This endpoint used for getting product list with pagination
+//@Accept  json
+//@Tags Product
+//@Param page query int false "Page Index"
+//@Param pageSize query int false "Page Size"
+//@Success 200
+//Failure 502 shared.ApiErrorResponse
+//@Router /product/list [get]
 //ListProducts get the products list with pagination
 func (c *ProductController) ListProducts(g *gin.Context) {
 	//prepare page and get products
@@ -43,6 +52,16 @@ func (c *ProductController) ListProducts(g *gin.Context) {
 		Data:      page})
 }
 
+//SearchProducts godoc
+//@Summary This endpoint used for searching product with pagination
+//@Accept  json
+//@Tags Product
+//@Param page query int false "Page Index"
+//@Param pageSize query int false "Page Size"
+//@Param searchKeyword query string false "word will be searched"
+//@Success 200
+//Failure 400 shared.ApiErrorResponse
+//@Router /product/search{searchKeyword} [post]
 //SearchProducts search the products with pagination
 func (c *ProductController) SearchProducts(g *gin.Context) {
 	//prepare page
@@ -71,6 +90,16 @@ func (c *ProductController) SearchProducts(g *gin.Context) {
 		Data:      page})
 }
 
+//AddProduct godoc
+//@Summary This endpoint used for creating new product
+//@Accept  json
+//@Tags Product
+//@Param requestModel body types.AddProductRequest "it is a new product model"
+//@Success 201
+//Failure 400 shared.ApiErrorResponse
+//@Router /product/add [post]
+//@Security ApiKeyAuth
+//@param Authorization header string true "Authorization"
 //AddProduct creates new product
 func (c *ProductController) AddProduct(g *gin.Context) {
 	var requestModel types.AddProductRequest
@@ -106,6 +135,16 @@ func (c *ProductController) AddProduct(g *gin.Context) {
 	})
 }
 
+//DeleteProduct godoc
+//@Summary This endpoint used for remove the product fromDB
+//@Accept  json
+//@Tags Product
+//@Param stock_code formData string true "stock code belongs product will be deleted"
+//@Success 204
+//Failure 400 shared.ApiErrorResponse
+//@Router /product/delete [delete]
+//@Security ApiKeyAuth
+//@param Authorization header string true "Authorization"
 //DeleteProduct remove the product fromDB
 func (c *ProductController) DeleteProduct(g *gin.Context) {
 
@@ -129,6 +168,16 @@ func (c *ProductController) DeleteProduct(g *gin.Context) {
 	})
 }
 
+//UpdateProduct godoc
+//@Summary This endpoint used for updates product in DB
+//@Accept  json
+//@Tags Product
+//@Param requestModel body types.AddProductRequest "it is an updated product model"
+//@Success 204
+//Failure 400 shared.ApiErrorResponse
+//@Router /product/update [put]
+//@Security ApiKeyAuth
+//@param Authorization header string true "Authorization"
 //UpdateProduct updates product in DB
 func (c *ProductController) UpdateProduct(g *gin.Context) {
 	var requestModel types.AddProductRequest

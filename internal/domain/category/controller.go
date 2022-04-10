@@ -14,13 +14,25 @@ type CategoryController struct {
 	categoryService *CategoryService
 }
 
+//@BasePath /category
+
 func NewCategoryController(service *CategoryService) *CategoryController {
 	return &CategoryController{
 		categoryService: service,
 	}
 }
 
-//CategoryList get the list of categories
+//CategoryList godoc
+//@ID category-list
+//@Summary This endpoint used for getting category list with pagination
+//@Accept  json
+//@Produce  json
+//@Tags Category
+//@Param page query int false "Page Index"
+//@Param pageSize query int false "Page Size"
+//@Success 200 pagination.Pages
+//@Failure 507 shared.ApiErrorResponse
+//@Router /category/list [get]
 func (c *CategoryController) CategoryList(g *gin.Context) {
 
 	//prepare page and get categories
@@ -47,7 +59,20 @@ func (c *CategoryController) CategoryList(g *gin.Context) {
 	})
 }
 
-//AddCategoryFromCSV get CSV from form-data
+//AddCategoryFromCSV godoc
+//@ID category-add-csv
+//@Summary This endpoint used for uploading csv and creating categories from this csv file
+//@Accept  json
+//@Produce  json
+//@Tags Category
+//@Success 201
+//@Param file formData file true "form data CSV"
+//Failure 400 shared.ApiErrorResponse
+//Failure 500 shared.ApiErrorResponse
+//@Failure 415 shared.ApiErrorResponse
+//@Router /category/add-all [post]
+//@Security ApiKeyAuth
+//@param Authorization header string true "Authorization"
 func (c *CategoryController) AddCategoryFromCSV(g *gin.Context) {
 
 	//get form data

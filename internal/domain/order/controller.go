@@ -15,6 +15,8 @@ type OrderController struct {
 	appConfig    *config.Configuration
 }
 
+//@BasePath /order
+
 func NewOrderController(service *OrderService, configuration *config.Configuration) *OrderController {
 	return &OrderController{
 		orderService: service,
@@ -22,6 +24,15 @@ func NewOrderController(service *OrderService, configuration *config.Configurati
 	}
 }
 
+//CompleteOrder godoc
+//@Summary This endpoint used for creating order with products in basket
+//@Accept  json
+//@Tags Order
+//@Success 201
+//Failure 400 shared.ApiErrorResponse
+//@Router /order/complete [post]
+//@Security ApiKeyAuth
+//@param Authorization header string true "Authorization"
 //CompleteOrder crates order from items that is in basket and clear the basket
 func (c *OrderController) CompleteOrder(g *gin.Context) {
 	userId := getUserIdFromAuthToken(g.GetHeader("Authorization"), c.appConfig.JwtSettings.SecretKey)
@@ -44,6 +55,16 @@ func (c *OrderController) CompleteOrder(g *gin.Context) {
 	})
 }
 
+//CancelOrder godoc
+//@Summary This endpoint used for creating order with products in basket
+//@Accept  json
+//@Tags Order
+//@Param order_delete_id formData int true "id belongs order will be canceled"
+//@Success 201
+//Failure 400 shared.ApiErrorResponse
+//@Router /order/cancel [post]
+//@Security ApiKeyAuth
+//@param Authorization header string true "Authorization"
 //CancelOrder cancel order if it is not too old
 func (c *OrderController) CancelOrder(g *gin.Context) {
 
@@ -69,6 +90,15 @@ func (c *OrderController) CancelOrder(g *gin.Context) {
 
 }
 
+//ListOrders godoc
+//@Summary This endpoint used for see the active orders
+//@Accept  json
+//@Tags Order
+//@Success 201
+//Failure 400 shared.ApiErrorResponse
+//@Router /order/list [get]
+//@Security ApiKeyAuth
+//@param Authorization header string true "Authorization"
 //ListOrders gets the orders except canceled orders
 func (c *OrderController) ListOrders(g *gin.Context) {
 

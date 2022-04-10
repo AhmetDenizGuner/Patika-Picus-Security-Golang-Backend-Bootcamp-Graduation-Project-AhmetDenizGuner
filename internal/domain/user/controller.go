@@ -22,6 +22,8 @@ type UserController struct {
 	redisClient *redis.RedisClient
 }
 
+//@BasePath /auth
+
 func NewUserController(service *UserService, appConfig *config.Configuration, redisClient *redis.RedisClient) *UserController {
 	return &UserController{
 		userService: service,
@@ -30,6 +32,14 @@ func NewUserController(service *UserService, appConfig *config.Configuration, re
 	}
 }
 
+//SignUp godoc
+//@Summary This endpoint used for register
+//@Accept  json
+//@Tags Auth
+//@Param signupRequest body types.SignupRequest true "signup information"
+//@Success 201
+//@Failure 400 shared.ApiErrorResponse
+//@Router /auth/signup [post]
 //SignUp crates new user with unique email
 func (c *UserController) SignUp(g *gin.Context) {
 	var requestModel types.SignupRequest
@@ -66,6 +76,16 @@ func (c *UserController) SignUp(g *gin.Context) {
 	)
 }
 
+//SignIn godoc
+//@Summary This endpoint used for login
+//@Accept  json
+//@Tags Auth
+//@Param signup signinRequest body types.SigninRequest true "signin information"
+//@Success 200
+//@Failure 400 shared.ApiErrorResponse
+//@Failure 404 shared.ApiErrorResponse
+//@Failure 507 shared.ApiErrorResponse
+//@Router /auth/login [post]
 //SignIn generate token for user
 func (c *UserController) SignIn(g *gin.Context) {
 	var requestModel types.SigninRequest
@@ -129,6 +149,16 @@ func (c *UserController) SignIn(g *gin.Context) {
 
 }
 
+//SignOut godoc
+//@Summary This endpoint used for logout
+//@Accept  json
+//@Tags Auth
+//@Param signup signoutRequest body types.SignoutRequest true "signout information"
+//@Success 200
+//@Failure 400 shared.ApiErrorResponse
+//@Router /auth/logout [post]
+//@Security ApiKeyAuth
+//@param Authorization header string true "Authorization"
 //SignOut delete the logged-in user token in redis
 func (c *UserController) SignOut(g *gin.Context) {
 	var requestModel types.SignoutRequest
