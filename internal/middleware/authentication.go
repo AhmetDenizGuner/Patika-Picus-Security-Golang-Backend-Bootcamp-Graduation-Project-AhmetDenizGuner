@@ -3,6 +3,7 @@ package middleware
 import (
 	"github.com/AhmetDenizGuner/Patika-Picus-Security-Golang-Backend-Bootcamp-Graduation-Project-AhmetDenizGuner/pkg/jwt"
 	"github.com/AhmetDenizGuner/Patika-Picus-Security-Golang-Backend-Bootcamp-Graduation-Project-AhmetDenizGuner/pkg/redis"
+	"github.com/AhmetDenizGuner/Patika-Picus-Security-Golang-Backend-Bootcamp-Graduation-Project-AhmetDenizGuner/shared"
 	"github.com/gin-gonic/gin"
 	"log"
 	"net/http"
@@ -18,21 +19,27 @@ func UserAuthMiddleware(secretKey string, redisClient *redis.RedisClient) gin.Ha
 			if decodedClaims != nil {
 				log.Println(decodedClaims)
 				if !checkTokenValidInRedis(c.GetHeader("Authorization"), decodedClaims, redisClient) {
-					c.JSON(http.StatusForbidden, gin.H{"error_message": "You are not authorized!"})
+					c.JSON(http.StatusForbidden, shared.ApiErrorResponse{
+						IsSuccess:    false,
+						ErrorMessage: "You are not authorized!"})
 					c.Abort()
 					return
 				}
-				if decodedClaims.Role.Name == "USER" {
+				if decodedClaims.Role.Name == "USER" || decodedClaims.Role.Name == "ADMIN" {
 					c.Next()
 					c.Abort()
 					return
 				}
 			}
-			c.JSON(http.StatusForbidden, gin.H{"error_message": "You are not allowed to use this endpoint!"})
+			c.JSON(http.StatusForbidden, shared.ApiErrorResponse{
+				IsSuccess:    false,
+				ErrorMessage: "You are not allowed to use this endpoint!"})
 			c.Abort()
 			return
 		} else {
-			c.JSON(http.StatusUnauthorized, gin.H{"error_message": "You are not authorized!"})
+			c.JSON(http.StatusUnauthorized, shared.ApiErrorResponse{
+				IsSuccess:    false,
+				ErrorMessage: "You are not authorized!"})
 		}
 		c.Abort()
 		return
@@ -47,7 +54,9 @@ func AdminAuthMiddleware(secretKey string, redisClient *redis.RedisClient) gin.H
 			if decodedClaims != nil {
 				log.Println(decodedClaims)
 				if !checkTokenValidInRedis(c.GetHeader("Authorization"), decodedClaims, redisClient) {
-					c.JSON(http.StatusForbidden, gin.H{"error_message": "You are not authorized!"})
+					c.JSON(http.StatusForbidden, shared.ApiErrorResponse{
+						IsSuccess:    false,
+						ErrorMessage: "You are not authorized!"})
 					c.Abort()
 					return
 				}
@@ -57,11 +66,15 @@ func AdminAuthMiddleware(secretKey string, redisClient *redis.RedisClient) gin.H
 					return
 				}
 			}
-			c.JSON(http.StatusForbidden, gin.H{"error": "You are not allowed to use this endpoint!"})
+			c.JSON(http.StatusForbidden, shared.ApiErrorResponse{
+				IsSuccess:    false,
+				ErrorMessage: "You are not allowed to use this endpoint!"})
 			c.Abort()
 			return
 		} else {
-			c.JSON(http.StatusUnauthorized, gin.H{"error": "You are not authorized!"})
+			c.JSON(http.StatusUnauthorized, shared.ApiErrorResponse{
+				IsSuccess:    false,
+				ErrorMessage: "You are not authorized!"})
 		}
 		c.Abort()
 		return
