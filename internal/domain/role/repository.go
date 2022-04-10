@@ -26,15 +26,3 @@ func (r *RoleRepository) Create(role *Role) error {
 
 	return nil
 }
-
-func (r *RoleRepository) FindByName(name string) (Role, error) {
-	var product Role
-
-	result := r.db.Where("id = ?", name).Find(&product)
-
-	if result.Error != nil {
-		return Role{}, result.Error
-	}
-
-	return product, nil
-}

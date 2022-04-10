@@ -11,6 +11,7 @@ func NewRoleService(repository RoleRepository) *RoleService {
 	return service
 }
 
+//InsertSampleData create DB schema and insert initial  data
 func (service *RoleService) InsertSampleData() {
 
 	tableExist := service.repository.db.Migrator().HasTable(&Role{})
